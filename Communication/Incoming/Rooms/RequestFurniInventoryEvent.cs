@@ -5,13 +5,13 @@ using System.Text;
 using Uber.HabboHotel.GameClients;
 using Uber.Messages;
 
-namespace Uber.Communication.Incoming.Users
+namespace Uber.Communication.Incoming.Rooms
 {
     class RequestFurniInventoryEvent : IPacketEvent
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.SendPacket(Session.GetHabbo().GetInventoryComponent().SerializeItemInventory());
         }
     }
 }

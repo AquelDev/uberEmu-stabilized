@@ -411,9 +411,9 @@ namespace Uber.HabboHotel.Users
 
         public void UpdateCreditsBalance(Boolean InDatabase)
         {
-            GetClient().GetMessageHandler().GetResponse().Init(6);
-            GetClient().GetMessageHandler().GetResponse().AppendStringWithBreak(Credits + ".0");
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(6);
+            packet.AppendStringWithBreak(Credits + ".0");
+            GetClient().SendPacket(packet);
 
             if (InDatabase)
             {
@@ -431,10 +431,10 @@ namespace Uber.HabboHotel.Users
 
         public void UpdateActivityPointsBalance(Boolean InDatabase, int NotifAmount)
         {
-            GetClient().GetMessageHandler().GetResponse().Init(438);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(ActivityPoints);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(NotifAmount);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(438);
+            packet.AppendInt32(ActivityPoints);
+            packet.AppendInt32(NotifAmount);
+            GetClient().SendPacket(packet);
 
             if (InDatabase)
             {

@@ -11,7 +11,9 @@ namespace Uber.Communication.Incoming.Rooms
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            ServerPacket packet = new ServerPacket(309);
+            packet.AppendStringWithBreak("IcIrDs43103s19014d5a1dc291574a508bc80a64663e61a00");
+            Session.SendPacket(packet);
         }
     }
 }

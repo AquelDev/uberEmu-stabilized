@@ -75,10 +75,10 @@ namespace Uber.HabboHotel.Users.Inventory
 
             Effects.Add(new AvatarEffect(EffectId, Duration, false, 0));
 
-            GetClient().GetMessageHandler().GetResponse().Init(461);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(EffectId);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(Duration);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(461);
+            packet.AppendInt32(EffectId);
+            packet.AppendInt32(Duration);
+            GetClient().SendPacket(packet);
         }
 
         public void StopEffect(int EffectId)
@@ -97,9 +97,9 @@ namespace Uber.HabboHotel.Users.Inventory
 
             Effects.Remove(Effect);
 
-            GetClient().GetMessageHandler().GetResponse().Init(463);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(EffectId);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(463);
+            packet.AppendInt32(EffectId);
+            GetClient().SendPacket(packet);
 
             if (CurrentEffect >= 0)
             {
@@ -152,10 +152,10 @@ namespace Uber.HabboHotel.Users.Inventory
 
             Effect.Activate();
 
-            GetClient().GetMessageHandler().GetResponse().Init(462);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(Effect.EffectId);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(Effect.TotalDuration);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(462);
+            packet.AppendInt32(Effect.EffectId);
+            packet.AppendInt32(Effect.TotalDuration);
+            GetClient().SendPacket(packet);
         }
 
         public bool HasEffect(int EffectId, bool IfEnabledOnly)

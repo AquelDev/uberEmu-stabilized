@@ -11,7 +11,9 @@ namespace Uber.Communication.Incoming.Rooms
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            ServerPacket packet = new ServerPacket(81);
+            packet.AppendStringWithBreak("The Uber Infobus is not yet in use.");
+            Session.SendPacket(packet);
         }
     }
 }

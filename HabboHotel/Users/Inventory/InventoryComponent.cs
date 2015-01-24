@@ -107,8 +107,7 @@ namespace Uber.HabboHotel.Users.Inventory
                 LoadInventory();
             }
 
-            GetClient().GetMessageHandler().GetResponse().Init(101);
-            GetClient().GetMessageHandler().SendResponse();
+            GetClient().SendPacket(new ServerPacket(101));
         }
 
         public void UpdatePets(bool FromDatabase)
@@ -212,9 +211,9 @@ namespace Uber.HabboHotel.Users.Inventory
 
         public void RemoveItem(uint Id)
         {
-            GetClient().GetMessageHandler().GetResponse().Init(99);
-            GetClient().GetMessageHandler().GetResponse().AppendUInt(Id);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(99);
+            packet.AppendUInt(Id);
+            GetClient().SendPacket(packet);
             InventoryItems.Remove(GetItem(Id));
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {

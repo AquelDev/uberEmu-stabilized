@@ -11,7 +11,7 @@ namespace Uber.Communication.Incoming.Rooms
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.GetHabbo().GetAvatarEffectsInventoryComponent().EnableEffect(Packet.PopWiredInt32());
         }
     }
 }

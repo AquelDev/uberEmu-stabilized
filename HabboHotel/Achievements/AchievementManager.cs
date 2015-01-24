@@ -150,21 +150,21 @@ namespace Uber.HabboHotel.Achievements
             }
 
             // Notify the user of the achievement gain
-            Session.GetMessageHandler().GetResponse().Init(437);
-            Session.GetMessageHandler().GetResponse().AppendUInt(Achievement.Id);
-            Session.GetMessageHandler().GetResponse().AppendInt32(Level);
-            Session.GetMessageHandler().GetResponse().AppendStringWithBreak(FormatBadgeCode(Achievement.BadgeCode, Level, Achievement.DynamicBadgeLevel));
+            ServerPacket packet = new ServerPacket(437);
+            packet.AppendUInt(Achievement.Id);
+            packet.AppendInt32(Level);
+            packet.AppendStringWithBreak(FormatBadgeCode(Achievement.BadgeCode, Level, Achievement.DynamicBadgeLevel));
 
             if (Level > 1)
             {
-                Session.GetMessageHandler().GetResponse().AppendStringWithBreak(FormatBadgeCode(Achievement.BadgeCode, (Level - 1), Achievement.DynamicBadgeLevel));
+                packet.AppendStringWithBreak(FormatBadgeCode(Achievement.BadgeCode, (Level - 1), Achievement.DynamicBadgeLevel));
             }
             else
             {
-                Session.GetMessageHandler().GetResponse().AppendStringWithBreak("");
+                packet.AppendStringWithBreak("");
             }
 
-            Session.GetMessageHandler().SendResponse();
+            Session.SendPacket(packet);
 
             // Give the user the pixels he deserves
             Session.GetHabbo().ActivityPoints += Value;

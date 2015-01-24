@@ -253,12 +253,12 @@ namespace Uber.HabboHotel.Users.Messenger
                 }
             }
 
-            GetClient().GetMessageHandler().GetResponse().Init(13);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(0);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(1);
-            GetClient().GetMessageHandler().GetResponse().AppendInt32(-1);
-            GetClient().GetMessageHandler().GetResponse().AppendUInt(Friend);
-            GetClient().GetMessageHandler().SendResponse();
+            ServerPacket packet = new ServerPacket(13);
+            packet.AppendInt32(0);
+            packet.AppendInt32(1);
+            packet.AppendInt32(-1);
+            packet.AppendUInt(Friend);
+            GetClient().SendPacket(packet);
         }
 
         public void RequestBuddy(string UserQuery)
@@ -277,10 +277,10 @@ namespace Uber.HabboHotel.Users.Messenger
             }
             else if (UberEnvironment.EnumToBool(Row["block_newfriends"].ToString()))
             {
-                GetClient().GetMessageHandler().GetResponse().Init(260);
-                GetClient().GetMessageHandler().GetResponse().AppendInt32(39);
-                GetClient().GetMessageHandler().GetResponse().AppendInt32(3);
-                GetClient().GetMessageHandler().SendResponse();
+                ServerPacket packet = new ServerPacket(260);
+                packet.AppendInt32(39);
+                packet.AppendInt32(3);
+                GetClient().SendPacket(packet);
                 return;
             }
 

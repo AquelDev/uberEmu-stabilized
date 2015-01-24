@@ -11,7 +11,7 @@ namespace Uber.Communication.Incoming.Navigator
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.SendPacket(UberEnvironment.GetGame().GetNavigator().SerializeRoomListing(Session, -3));
         }
     }
 }

@@ -215,12 +215,12 @@ namespace Uber.Net
                     }
 
                     // DJHhr-890-39.hd-600-1.sh-907-84.lg-715-84.ch-650-84.ca-1819-.fa-1212-f?
-                    Client.GetMessageHandler().GetResponse().Init(266);
-                    Client.GetMessageHandler().GetResponse().AppendInt32(-1);
-                    Client.GetMessageHandler().GetResponse().AppendStringWithBreak(Client.GetHabbo().Look);
-                    Client.GetMessageHandler().GetResponse().AppendStringWithBreak(Client.GetHabbo().Gender.ToLower());
-                    Client.GetMessageHandler().GetResponse().AppendStringWithBreak(Client.GetHabbo().Motto);
-                    Client.GetMessageHandler().SendResponse();
+                    ServerPacket looks = new ServerPacket(266);
+                    looks.AppendInt32(-1);
+                    looks.AppendStringWithBreak(Client.GetHabbo().Look);
+                    looks.AppendStringWithBreak(Client.GetHabbo().Gender.ToLower());
+                    looks.AppendStringWithBreak(Client.GetHabbo().Motto);
+                    Client.SendPacket(looks);
 
                     if (Client.GetHabbo().InRoom)
                     {

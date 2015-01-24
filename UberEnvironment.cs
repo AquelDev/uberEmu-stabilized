@@ -8,6 +8,7 @@ using Uber.Storage;
 using Uber.Net;
 using Uber.HabboHotel;
 using MySql.Data.MySqlClient;
+using Uber.Communication;
 
 namespace Uber
 {
@@ -17,6 +18,7 @@ namespace Uber
         private static ConfigurationData Configuration;
         private static DatabaseManager DatabaseManager;
         private static Encoding DefaultEncoding;
+        private static PacketManager _packetManager = new PacketManager();
         private static TcpConnectionManager ConnectionManager;
         private static MusSocket MusSocket;
         private static Game Game;
@@ -209,6 +211,11 @@ namespace Uber
         public static Encoding GetDefaultEncoding()
         {
             return DefaultEncoding;
+        }
+
+        public static PacketManager GetPacketManager()
+        {
+            return _packetManager;
         }
 
         public static TcpConnectionManager GetConnectionManager()

@@ -1008,13 +1008,12 @@ namespace Uber.HabboHotel.Rooms
                 {
                     if (NotifyKick)
                     {
-                        Session.GetMessageHandler().GetResponse().Init(33);
-                        Session.GetMessageHandler().GetResponse().AppendInt32(4008);
-                        Session.GetMessageHandler().SendResponse();
+                        ServerPacket packet = new ServerPacket(33);
+                        packet.AppendInt32(4008);
+                        Session.SendPacket(packet);
                     }
 
-                    Session.GetMessageHandler().GetResponse().Init(18);
-                    Session.GetMessageHandler().SendResponse();
+                    Session.SendPacket(new ServerPacket(18));
                 }
 
                 List<RoomUser> PetsToRemove = new List<RoomUser>();

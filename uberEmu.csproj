@@ -253,7 +253,7 @@
     <Compile Include="Communication\Incoming\Users\GetPetInventoryEvent.cs" />
     <Compile Include="Communication\Incoming\Users\GetWardrobeMessageEvent.cs" />
     <Compile Include="Communication\Incoming\Users\InfoRetrieveMessageEvent.cs" />
-    <Compile Include="Communication\Incoming\Users\RequestFurniInventoryEvent.cs" />
+    <Compile Include="Communication\Incoming\Rooms\RequestFurniInventoryEvent.cs" />
     <Compile Include="Communication\Incoming\Users\SaveWardrobeOutfitMessageEvent.cs" />
     <Compile Include="Communication\Incoming\Users\ScrGetUserInfoMessageEvent.cs" />
     <Compile Include="Communication\Incoming\Users\SetActivatedBadgesEvent.cs" />
@@ -336,14 +336,10 @@
     <Compile Include="HabboHotel\Users\Messenger\MessengerRequest.cs" />
     <Compile Include="HabboHotel\Users\Subscriptions\Subscription.cs" />
     <Compile Include="HabboHotel\Users\Subscriptions\SubscriptionManager.cs" />
-    <Compile Include="Messages\GameClientMessageHander.cs" />
     <Compile Include="HabboHotel\Users\Habbo.cs" />
     <Compile Include="HabboHotel\Misc\CrossdomainPolicy.cs" />
-    <Compile Include="Messages\ClientMessage.cs" />
-    <Compile Include="Messages\Requests\Rooms.cs" />
-    <Compile Include="Messages\Requests\Navigator.cs" />
-    <Compile Include="Messages\Requests\Help.cs" />
-    <Compile Include="Messages\ServerMessage.cs" />
+    <Compile Include="Messages\ClientPacket.cs" />
+    <Compile Include="Messages\ServerPacket.cs" />
     <Compile Include="Net\MusSocket.cs" />
     <Compile Include="Net\TcpConnection.cs" />
     <Compile Include="Net\TcpConnectionFactory.cs" />

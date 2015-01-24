@@ -11,7 +11,10 @@ namespace Uber.Communication.Incoming.Navigator
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (Session.GetHabbo().InRoom)
+            {
+                UberEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId).RemoveUserFromRoom(Session, true, false);
+            }
         }
     }
 }

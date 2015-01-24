@@ -29,9 +29,9 @@ namespace Uber.HabboHotel.Catalogs
 
             if (Item == null || SellingPrice > 10000 || !CanSellItem(Item))
             {
-                Session.GetMessageHandler().GetResponse().Init(610);
-                Session.GetMessageHandler().GetResponse().AppendBoolean(false);
-                Session.GetMessageHandler().SendResponse();
+                ServerPacket packet = new ServerPacket(610);
+                packet.AppendBoolean(false);
+                Session.SendPacket(packet);
 
                 return;
             }
@@ -54,9 +54,9 @@ namespace Uber.HabboHotel.Catalogs
 
             Session.GetHabbo().GetInventoryComponent().RemoveItem(ItemId);
 
-            Session.GetMessageHandler().GetResponse().Init(610);
-            Session.GetMessageHandler().GetResponse().AppendBoolean(true);
-            Session.GetMessageHandler().SendResponse();
+            ServerPacket p610 = new ServerPacket(610);
+            p610.AppendBoolean(true);
+            Session.SendPacket(p610);
         }
 
         public int CalculateComissionPrice(float SellingPrice)

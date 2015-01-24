@@ -11,7 +11,8 @@ namespace Uber.Communication.Incoming.Navigator
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            int junk = Packet.PopWiredInt32();
+            Session.SendPacket(UberEnvironment.GetGame().GetNavigator().SerializeSearchResults(Packet.PopFixedString()));
         }
     }
 }

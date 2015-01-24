@@ -193,10 +193,10 @@ namespace Uber.HabboHotel.Catalogs
 
                 if (GiftUserId == 0)
                 {
-                    Session.GetMessageHandler().GetResponse().Init(76);
-                    Session.GetMessageHandler().GetResponse().AppendBoolean(true);
-                    Session.GetMessageHandler().GetResponse().AppendStringWithBreak(GiftUser);
-                    Session.GetMessageHandler().SendResponse();
+                    ServerPacket packet = new ServerPacket(76);
+                    packet.AppendBoolean(true);
+                    packet.AppendStringWithBreak(GiftUser);
+                    Session.SendPacket(packet);
 
                     return;
                 }
@@ -217,10 +217,10 @@ namespace Uber.HabboHotel.Catalogs
 
             if (CreditsError || PixelError)
             {
-                Session.GetMessageHandler().GetResponse().Init(68);
-                Session.GetMessageHandler().GetResponse().AppendBoolean(CreditsError);
-                Session.GetMessageHandler().GetResponse().AppendBoolean(PixelError);
-                Session.GetMessageHandler().SendResponse();
+                ServerPacket packet = new ServerPacket(68);
+                packet.AppendBoolean(CreditsError);
+                packet.AppendBoolean(PixelError);
+                Session.SendPacket(packet);
 
                 return;
             }
@@ -312,20 +312,20 @@ namespace Uber.HabboHotel.Catalogs
                 Session.GetHabbo().UpdateActivityPointsBalance(true);
             }
 
-            Session.GetMessageHandler().GetResponse().Init(67);
-            Session.GetMessageHandler().GetResponse().AppendUInt(Item.GetBaseItem().ItemId);
-            Session.GetMessageHandler().GetResponse().AppendStringWithBreak(Item.GetBaseItem().Name);
-            Session.GetMessageHandler().GetResponse().AppendInt32(Item.CreditsCost);
-            Session.GetMessageHandler().GetResponse().AppendInt32(Item.PixelsCost);
-            Session.GetMessageHandler().GetResponse().AppendInt32(0); // R63 fix
-            Session.GetMessageHandler().GetResponse().AppendInt32(1);
-            Session.GetMessageHandler().GetResponse().AppendStringWithBreak(Item.GetBaseItem().Type.ToLower());
-            Session.GetMessageHandler().GetResponse().AppendInt32(Item.GetBaseItem().SpriteId);
-            Session.GetMessageHandler().GetResponse().AppendStringWithBreak("");
-            Session.GetMessageHandler().GetResponse().AppendInt32(1);
-            Session.GetMessageHandler().GetResponse().AppendInt32(-1);
-            Session.GetMessageHandler().GetResponse().AppendStringWithBreak("");
-            Session.GetMessageHandler().SendResponse();
+            ServerPacket p67 = new ServerPacket(67);
+            p67.AppendUInt(Item.GetBaseItem().ItemId);
+            p67.AppendStringWithBreak(Item.GetBaseItem().Name);
+            p67.AppendInt32(Item.CreditsCost);
+            p67.AppendInt32(Item.PixelsCost);
+            p67.AppendInt32(0); // R63 fix
+            p67.AppendInt32(1);
+            p67.AppendStringWithBreak(Item.GetBaseItem().Type.ToLower());
+            p67.AppendInt32(Item.GetBaseItem().SpriteId);
+            p67.AppendStringWithBreak("");
+            p67.AppendInt32(1);
+            p67.AppendInt32(-1);
+            p67.AppendStringWithBreak("");
+            Session.SendPacket(p67);
 
             if (IsGift)
             {
@@ -491,8 +491,8 @@ namespace Uber.HabboHotel.Catalogs
                         Session.GetHabbo().GetBadgeComponent().GiveBadge("HC1", true);
                     }
 
-                    Session.GetMessageHandler().GetResponse().Init(7);
-                    Session.GetMessageHandler().GetResponse().AppendStringWithBreak("habbo_club");
+                    ServerPacket packet = new ServerPacket(7);
+                    packet.AppendStringWithBreak("habbo_club");
 
                     if (Session.GetHabbo().GetSubscriptionManager().HasSubscription("habbo_club"))
                     {
@@ -503,31 +503,31 @@ namespace Uber.HabboHotel.Catalogs
 
                         if (MonthsLeft >= 1) MonthsLeft--;
 
-                        Session.GetMessageHandler().GetResponse().AppendInt32(TotalDaysLeft - (MonthsLeft * 31));
-                        Session.GetMessageHandler().GetResponse().AppendBoolean(true);
-                        Session.GetMessageHandler().GetResponse().AppendInt32(MonthsLeft);
+                        packet.AppendInt32(TotalDaysLeft - (MonthsLeft * 31));
+                        packet.AppendBoolean(true);
+                        packet.AppendInt32(MonthsLeft);
                     }
                     else
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            Session.GetMessageHandler().GetResponse().AppendInt32(0);
+                            packet.AppendInt32(0);
                         }
                     }
 
-                    Session.GetMessageHandler().SendResponse();
+                    Session.SendPacket(packet);
 
                     List<string> Rights = UberEnvironment.GetGame().GetRoleManager().GetRightsForHabbo(Session.GetHabbo());
 
-                    Session.GetMessageHandler().GetResponse().Init(2);
-                    Session.GetMessageHandler().GetResponse().AppendInt32(Rights.Count);
+                    packet = new ServerPacket(2);
+                    packet.AppendInt32(Rights.Count);
 
                     foreach (string Right in Rights)
                     {
-                        Session.GetMessageHandler().GetResponse().AppendStringWithBreak(Right);
+                        packet.AppendStringWithBreak(Right);
                     }
 
-                    Session.GetMessageHandler().SendResponse();
+                    Session.SendPacket(packet);
 
                     break;
 
@@ -544,8 +544,8 @@ namespace Uber.HabboHotel.Catalogs
                         Session.GetHabbo().GetBadgeComponent().GiveBadge("ACH_VipClub1", true);
                     }
 
-                    Session.GetMessageHandler().GetResponse().Init(7);
-                    Session.GetMessageHandler().GetResponse().AppendStringWithBreak("habbo_vip");
+                    packet = new ServerPacket(7);
+                    packet.AppendStringWithBreak("habbo_vip");
 
                     if (Session.GetHabbo().GetSubscriptionManager().HasSubscription("habbo_vip"))
                     {
@@ -556,31 +556,31 @@ namespace Uber.HabboHotel.Catalogs
 
                         if (MonthsLeft >= 1) MonthsLeft--;
 
-                        Session.GetMessageHandler().GetResponse().AppendInt32(TotalDaysLeft - (MonthsLeft * 31));
-                        Session.GetMessageHandler().GetResponse().AppendBoolean(true);
-                        Session.GetMessageHandler().GetResponse().AppendInt32(MonthsLeft);
+                        packet.AppendInt32(TotalDaysLeft - (MonthsLeft * 31));
+                        packet.AppendBoolean(true);
+                        packet.AppendInt32(MonthsLeft);
                     }
                     else
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            Session.GetMessageHandler().GetResponse().AppendInt32(0);
+                            packet.AppendInt32(0);
                         }
                     }
 
-                    Session.GetMessageHandler().SendResponse();
+                    Session.SendPacket(packet);
 
                     List<string> Rights2 = UberEnvironment.GetGame().GetRoleManager().GetRightsForHabbo(Session.GetHabbo());
 
-                    Session.GetMessageHandler().GetResponse().Init(2);
-                    Session.GetMessageHandler().GetResponse().AppendInt32(Rights2.Count);
+                    packet = new ServerPacket(2);
+                    packet.AppendInt32(Rights2.Count);
 
                     foreach (string Right in Rights2)
                     {
-                        Session.GetMessageHandler().GetResponse().AppendStringWithBreak(Right);
+                        packet.AppendStringWithBreak(Right);
                     }
 
-                    Session.GetMessageHandler().SendResponse();
+                    Session.SendPacket(packet);
 
                     break;
 

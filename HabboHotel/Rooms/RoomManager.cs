@@ -342,7 +342,7 @@ namespace Uber.HabboHotel.Rooms
 
             User.GetClient().GetHabbo().IsTeleporting = true;
             User.GetClient().GetHabbo().TeleporterId = TeleId;
-            User.GetClient().GetMessageHandler().PrepareRoomForUser(RoomId, "");
+            User.GetClient().PrepareRoomForUser(RoomId, "");
         }
     }
 }

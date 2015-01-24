@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Uber.HabboHotel.GameClients;
+using Uber.HabboHotel.Items;
+using Uber.HabboHotel.Rooms;
 using Uber.Messages;
 
 namespace Uber.Communication.Incoming.Rooms
@@ -11,7 +13,21 @@ namespace Uber.Communication.Incoming.Rooms
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Room Room = UberEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
+            if (Room == null || !Room.CheckRights(Session, true))
+            {
+                return;
+            }
+
+            RoomItem Item = Room.GetItem(Packet.PopWiredUInt());
+
+            if (Item == null || Item.GetBaseItem().InteractionType.ToLower() != "postit")
+            {
+                return;
+            }
+
+            Room.RemoveFurniture(Session, Item.Id);
         }
     }
 }

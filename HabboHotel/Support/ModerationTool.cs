@@ -369,9 +369,9 @@ namespace Uber.HabboHotel.Support
 
             if (Client != null)
             {
-                Client.GetMessageHandler().GetResponse().Init(540);
-                Client.GetMessageHandler().GetResponse().AppendInt32(ResultCode);
-                Client.GetMessageHandler().SendResponse();
+                ServerPacket packet = new ServerPacket(540);
+                packet.AppendInt32(ResultCode);
+                Client.SendPacket(packet);
             }
 
             Ticket.Close(NewStatus, true);

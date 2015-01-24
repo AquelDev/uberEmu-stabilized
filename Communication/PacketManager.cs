@@ -7,6 +7,7 @@ using Uber.Communication.Incoming.Global;
 using Uber.Communication.Incoming.Handshake;
 using Uber.Communication.Incoming.Help;
 using Uber.Communication.Incoming.Messenger;
+using Uber.Communication.Incoming.Navigator;
 using Uber.Communication.Incoming.Users;
 using Uber.Communication.Outgoing;
 
@@ -20,17 +21,11 @@ namespace Uber.Communication
         private Dictionary<uint, IPacketEvent> RequestHandlers;
 
         /// <summary>
-        /// Storage of names from Info Events.
-        /// </summary>
-        public Dictionary<string, uint> InfoEvents;
-
-        /// <summary>
         /// Initializes Packet Manager
         /// </summary>
         public PacketManager()
         {
             this.RequestHandlers = new Dictionary<uint, IPacketEvent>();
-            this.InfoEvents = new Dictionary<string, uint>();
             this.Handshake();
             this.Global();
             this.Catalog();
@@ -39,17 +34,6 @@ namespace Uber.Communication
             this.Navigator();
             this.Rooms();
             this.Users();
-            foreach (var Packet in typeof(ServerPacketHeader).GetFields())
-            {
-                var PacketId = (uint)Packet.GetValue(0);
-                var PacketName = Packet.Name;
-
-                if (!InfoEvents.ContainsValue(PacketId))
-                {
-                    InfoEvents.Add(PacketName, PacketId);
-                }
-            }
-
         }
 
         public bool Handle(uint PacketId, out IPacketEvent Event)
@@ -141,6 +125,23 @@ namespace Uber.Communication
 
         public void Navigator()
         {
+            this.RequestHandlers.Add(19, new AddFavouriteRoomMessageEvent());
+            this.RequestHandlers.Add(20, new DeleteFavouriteRoomMessageEvent());
+            this.RequestHandlers.Add(53, new QuitMessageEvent());
+            this.RequestHandlers.Add(151, new GetUserFlatCatsMessageEvent());
+            this.RequestHandlers.Add(380, new GetOfficialRoomsMessageEvent());
+            this.RequestHandlers.Add(385, new GetGuestRoomMessageEvent());
+            this.RequestHandlers.Add(430, new PopularRoomsSearchMessageEvent());
+            this.RequestHandlers.Add(431, new RoomsWithHighestScoreSearchMessageEvent());
+            this.RequestHandlers.Add(432, new MyFriendsRoomsSearchMessageEvent());
+            this.RequestHandlers.Add(433, new RoomsWhereMyFriendsAreSearchMessageEvent());
+            this.RequestHandlers.Add(434, new MyRoomsSearchMessageEvent());
+            this.RequestHandlers.Add(435, new MyFavouriteRoomsSearchMessageEvent());
+            this.RequestHandlers.Add(436, new MyRoomHistorySearchMessageEvent());
+            this.RequestHandlers.Add(439, new LatestEventsSearchMessageEvent());
+            this.RequestHandlers.Add(382, new GetPopularRoomTagsMessageEvent());
+            this.RequestHandlers.Add(437, new RoomTextSearchMessageEvent());
+            this.RequestHandlers.Add(438, new RoomTagSearchMessageEvent());
         }
 
         public void Rooms()
@@ -152,16 +153,12 @@ namespace Uber.Communication
             this.RequestHandlers.Add(7, new InfoRetrieveMessageEvent());
             this.RequestHandlers.Add(8, new GetCreditsInfoEvent());
             this.RequestHandlers.Add(26, new ScrGetUserInfoMessageEvent());
-
             this.RequestHandlers.Add(157, new GetBadgesEvent());
             this.RequestHandlers.Add(158, new SetActivatedBadgesEvent());
             this.RequestHandlers.Add(370, new GetAchievementsEvent());
-
             this.RequestHandlers.Add(44, new UpdateFigureDataMessageEvent());
             this.RequestHandlers.Add(375, new GetWardrobeMessageEvent());
             this.RequestHandlers.Add(376, new SaveWardrobeOutfitMessageEvent());
-
-            this.RequestHandlers.Add(404, new RequestFurniInventoryEvent());
             this.RequestHandlers.Add(484, new ChangeMottoMessageEvent());
             this.RequestHandlers.Add(3000, new GetPetInventoryEvent());
         }
