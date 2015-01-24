@@ -1,0 +1,58 @@
+C:\Users\Kwlies\Desktop\UberEMU_including_source_aswell_as_CMS\uberEmu2\bin\Debug\uberEmu.exe.config
+C:\Users\Matthew\Documents\uberEmu2\bin\Debug\uberEmu.exe.config
+C:\Users\Matthew\Documents\uberEmu2\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Matthew\Documents\uberEmu2\bin\Debug\config.conf
+C:\Users\Matthew\Documents\uberEmu2\bin\Debug\uberEmu.exe
+C:\Users\Matthew\Documents\uberEmu2\bin\Debug\uberEmu.pdb
+C:\Users\Matthew\Documents\uberEmu2\obj\Debug\uberEmu.exe
+C:\Users\Matthew\Documents\uberEmu2\obj\Debug\uberEmu.pdb
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\bin\Debug\uberEmu.exe.config
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\obj\Debug\uberEmu.exe
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\obj\Debug\uberEmu.pdb
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\bin\Debug\config.conf
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\bin\Debug\uberEmu.exe
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\bin\Debug\uberEmu.pdb
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - Matty Rev 2\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\bin\Debug\uberEmu.exe.config
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\obj\Debug\uberEmu.exe
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\obj\Debug\uberEmu.pdb
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\bin\Debug\config.conf
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\bin\Debug\uberEmu.exe
+C:\Documents and Settings\Administrator\Desktop\iSpaz Stable - iJakey Rev 3\bin\Debug\uberEmu.pdb
+C:\Users\NovicDevelopment\Documents\Rev4\bin\Debug\uberEmu.exe.config
+C:\Users\NovicDevelopment\Documents\Rev4\obj\Debug\uberEmu.exe
+C:\Users\NovicDevelopment\Documents\Rev4\obj\Debug\uberEmu.pdb
+C:\Users\NovicDevelopment\Documents\Rev4\bin\Debug\config.conf
+C:\Users\NovicDevelopment\Documents\Rev4\bin\Debug\uberEmu.exe
+C:\Users\NovicDevelopment\Documents\Rev4\bin\Debug\uberEmu.pdb
+C:\Users\NovicDevelopment\Documents\Rev4\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\NovicDevelopment\Documents\whosthat\bin\Debug\uberEmu.exe.config
+C:\Users\NovicDevelopment\Documents\whosthat\obj\Debug\uberEmu.exe
+C:\Users\NovicDevelopment\Documents\whosthat\obj\Debug\uberEmu.pdb
+C:\Users\NovicDevelopment\Documents\whosthat\bin\Debug\config.conf
+C:\Users\NovicDevelopment\Documents\whosthat\bin\Debug\uberEmu.exe
+C:\Users\NovicDevelopment\Documents\whosthat\bin\Debug\uberEmu.pdb
+C:\Users\NovicDevelopment\Documents\whosthat\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\bin\Debug\uberEmu.exe.config
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\obj\Debug\uberEmu.exe
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\obj\Debug\uberEmu.pdb
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\bin\Debug\config.conf
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\bin\Debug\uberEmu.exe
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator\bin\Debug\uberEmu.pdb
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\bin\Debug\uberEmu.exe.config
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\obj\Debug\uberEmu.exe
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\obj\Debug\uberEmu.pdb
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\bin\Debug\config.conf
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\bin\Debug\uberEmu.exe
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\bin\Debug\uberEmu.pdb
+C:\Documents and Settings\kjh8yjug\My Documents\Habbo related\uberEmulator - reBuild\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\uberEmu.exe.config
+C:\Users\Mikkel\Desktop\uberEmu stabilized\obj\Debug\uberEmu.exe
+C:\Users\Mikkel\Desktop\uberEmu stabilized\obj\Debug\uberEmu.pdb
+C:\Users\Mikkel\Desktop\uberEmu stabilized\obj\Debug\uberEmu.csprojResolveAssemblyReference.cache
+C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\config.conf
+C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\uberEmu.exe
+C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\uberEmu.pdb
+C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\MySql.Data.dll

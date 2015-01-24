@@ -1,0 +1,10 @@
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\uber-config.conf
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\uberEmu.exe.config
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\uberEmu.exe
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\uberEmu.pdb
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\MySql.Data.dll
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\UberPluginInterface.dll
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\bin\x86\Debug\UberPluginInterface.pdb
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\obj\x86\Debug\uberEmu.exe
+C:\Users\Roy\Documents\Visual Studio 2008\Projects\uberEmu\uberEmu\obj\x86\Debug\uberEmu.pdb
