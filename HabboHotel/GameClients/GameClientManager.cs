@@ -126,23 +126,6 @@ namespace Uber.HabboHotel.GameClients
                             TimedOutClients.Add(_client.Value.ClientId);
                         }
                     }
-                    Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-                        while (eClients.MoveNext())
-                        {
-                            GameClient Client = eClients.Current.Value;
-
-                            if (Client.PongOK)
-                            {
-                                Client.PongOK = false;
-                                Client.GetConnection().SendPacket(PingMessage);
-                            }
-                            else
-                            {
-                                UberEnvironment.GetLogging().WriteLine(Client.ClientId + " has timed out.", Core.LogLevel.Warning);
-                                TimedOutClients.Add(Client.ClientId);
-                            }
-                        }
 
                     foreach (uint ClientId in TimedOutClients)
                     {
