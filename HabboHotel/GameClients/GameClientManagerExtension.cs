@@ -14,17 +14,11 @@ namespace Uber.HabboHotel.GameClients
         public void LogClonesOut(string Username)
         {
             List<uint> ToRemove = new List<uint>();
-
-            Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-            while (eClients.MoveNext())
+            foreach (var _client in Clients)
             {
-                GameClient Client = eClients.Current.Value;
-
-                if (Client.GetHabbo() != null && Client.GetHabbo().Username.ToLower() == Username.ToLower())
+                if (_client.Value.GetHabbo() != null && _client.Value.GetHabbo().Username.ToLower() == Username.ToLower())
                 {
-                    ToRemove.Add(Client.ClientId);
-                    continue;
+                    ToRemove.Add(_client.Value.ClientId);
                 }
             }
 
@@ -60,13 +54,9 @@ namespace Uber.HabboHotel.GameClients
 
         public void DeployHotelCreditsUpdate()
         {
-            Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-            while (eClients.MoveNext())
+            foreach (var _client in Clients)
             {
-                GameClient Client = eClients.Current.Value;
-
-                if (Client.GetHabbo() == null)
+                if (_client.Value.GetHabbo() == null)
                 {
                     continue;
                 }
@@ -75,21 +65,20 @@ namespace Uber.HabboHotel.GameClients
 
                 using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
                 {
-                    newCredits = (int)dbClient.ReadDataRow("SELECT credits FROM users WHERE id = '" + Client.GetHabbo().Id + "' LIMIT 1")[0];
+                    newCredits = (int)dbClient.ReadDataRow("SELECT credits FROM users WHERE id = '" + _client.Value.GetHabbo().Id + "' LIMIT 1")[0];
                 }
 
-                int oldBalance = Client.GetHabbo().Credits;
+                int oldBalance = _client.Value.GetHabbo().Credits;
 
-                Client.GetHabbo().Credits = newCredits;
+                _client.Value.GetHabbo().Credits = newCredits;
 
                 if (oldBalance < 3000)
                 {
-                    Client.GetHabbo().UpdateCreditsBalance(false);
-                    //Client.SendNotif("Credits Notification" + Convert.ToChar(13) + Convert.ToChar(13) + "We have refilled your credits to the set amount.");
+                    _client.Value.GetHabbo().UpdateCreditsBalance(false);
                 }
                 else if (oldBalance >= 3000)
                 {
-                    Client.SendNotif("Credits Notification" + Convert.ToChar(13) + Convert.ToChar(13) + "Sorry, your credit balance is too high and has not been refilled.");
+                    _client.Value.SendNotif("Credits Notification" + Convert.ToChar(13) + Convert.ToChar(13) + "Sorry, your credit balance is too high and has not been refilled.");
                 }
             }
         }
@@ -97,21 +86,15 @@ namespace Uber.HabboHotel.GameClients
         public void CheckForAllBanConflicts()
         {
             Dictionary<GameClient, ModerationBanException> ConflictsFound = new Dictionary<GameClient, ModerationBanException>();
-
-            Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-            while (eClients.MoveNext())
+            foreach (var _client in Clients)
             {
-                GameClient Client = eClients.Current.Value;
-
                 try
                 {
-                    UberEnvironment.GetGame().GetBanManager().CheckForBanConflicts(Client);
+                    UberEnvironment.GetGame().GetBanManager().CheckForBanConflicts(_client.Value);
                 }
-
                 catch (ModerationBanException e)
                 {
-                    ConflictsFound.Add(Client, e);
+                    ConflictsFound.Add(_client.Value, e);
                 }
             }
 
@@ -126,21 +109,15 @@ namespace Uber.HabboHotel.GameClients
         {
             try
             {
-                Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-                while (eClients.MoveNext())
+                foreach (var _client in Clients)
                 {
-                    GameClient Client = eClients.Current.Value;
-
-                    if (Client.GetHabbo() == null || !UberEnvironment.GetGame().GetPixelManager().NeedsUpdate(Client))
+                    if (_client.Value.GetHabbo() == null || !UberEnvironment.GetGame().GetPixelManager().NeedsUpdate(_client.Value))
                     {
                         continue;
                     }
-
-                    UberEnvironment.GetGame().GetPixelManager().GivePixels(Client);
+                    UberEnvironment.GetGame().GetPixelManager().GivePixels(_client.Value);
                 }
             }
-
             catch (Exception e)
             {
                 UberEnvironment.GetLogging().WriteLine("[GCMExt.CheckPixelUpdates]: " + e.Message);

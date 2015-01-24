@@ -52,26 +52,18 @@ namespace Uber.HabboHotel.Rooms
         public List<Room> GetEventRoomsForCategory(int Category)
         {
             List<Room> EventRooms = new List<Room>();
-
-            Dictionary<uint, Room>.Enumerator eRooms = this.Rooms.GetEnumerator();
-
-            while (eRooms.MoveNext())
+            foreach (var _room in Rooms)
             {
-                Room Room = eRooms.Current.Value;
-
-                if (Room.Event == null)
+                if (_room.Value.Event == null)
                 {
                     continue;
                 }
-
-                if (Category > 0 && Room.Event.Category != Category)
+                if (Category > 0 && _room.Value.Event.Category != Category)
                 {
                     continue;
                 }
-
-                EventRooms.Add(Room);
+                EventRooms.Add(_room.Value);
             }
-
             return EventRooms;
         }
 

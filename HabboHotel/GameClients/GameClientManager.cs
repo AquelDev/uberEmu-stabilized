@@ -13,7 +13,6 @@ namespace Uber.HabboHotel.GameClients
     {
         private Thread ConnectionChecker;
         private Dictionary<uint, GameClient> Clients;
-        private Object jake = new Object();
 
         public int ClientCount
         {
@@ -180,22 +179,6 @@ namespace Uber.HabboHotel.GameClients
                 if (_client.Value.GetHabbo().Username.ToLower() == Name.ToLower())
                 {
                     return _client.Value;
-                }
-            }
-            Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-            while (eClients.MoveNext())
-            {
-                GameClient Client = eClients.Current.Value;
-
-                if (Client.GetHabbo() == null)
-                {
-                    continue;
-                }
-
-                if (Client.GetHabbo().Username.ToLower() == Name.ToLower())
-                {
-                    return Client;
                 }
             }
             return null;

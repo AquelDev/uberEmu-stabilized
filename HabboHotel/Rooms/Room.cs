@@ -408,12 +408,9 @@ namespace Uber.HabboHotel.Rooms
         public void RegenerateUserMatrix()
         {
             this.UserMatrix = new bool[Model.MapSizeX, Model.MapSizeY];
-            List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
-
-            while (eUsers.MoveNext())
+            foreach (var _user in UserList)
             {
-                RoomUser User = eUsers.Current;
-                this.UserMatrix[User.X, User.Y] = true;
+                this.UserMatrix[_user.X, _user.Y] = true;
             }
         }
 
@@ -720,174 +717,166 @@ namespace Uber.HabboHotel.Rooms
             int i = 0;
 
             // Loop through all furni and process them if they want to be processed
-            List<RoomItem>.Enumerator eItems = this.Items.GetEnumerator();
-
-            while (eItems.MoveNext())
+            foreach (var _item in Items)
             {
-                RoomItem Item = eItems.Current;
-
-                if (!Item.UpdateNeeded)
+                if (_item.UpdateNeeded)
                 {
                     continue;
                 }
-
-                Item.ProcessUpdates();
+                _item.ProcessUpdates();
             }
 
             // Loop through all users and bots and process them
             List<uint> ToRemove = new List<uint>();
-            List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
 
-            while (eUsers.MoveNext())
+            foreach (var _user in UserList)
             {
-                RoomUser User = eUsers.Current;
+                _user.IdleTime++;
 
-                User.IdleTime++;
-
-                if (!User.IsAsleep && User.IdleTime >= 600)
+                if (!_user.IsAsleep && _user.IdleTime >= 600)
                 {
-                    User.IsAsleep = true;
+                    _user.IsAsleep = true;
 
                     ServerPacket FallAsleep = new ServerPacket(486);
-                    FallAsleep.AppendInt32(User.VirtualId);
+                    FallAsleep.AppendInt32(_user.VirtualId);
                     FallAsleep.AppendBoolean(true);
                     SendMessage(FallAsleep);
                 }
 
-                if (User.NeedsAutokick && !ToRemove.Contains(User.HabboId))
+                if (_user.NeedsAutokick && !ToRemove.Contains(_user.HabboId))
                 {
-                    ToRemove.Add(User.HabboId);
+                    ToRemove.Add(_user.HabboId);
                 }
 
-                if (User.CarryItemID > 0)
+                if (_user.CarryItemID > 0)
                 {
-                    User.CarryTimer--;
+                    _user.CarryTimer--;
 
-                    if (User.CarryTimer <= 0)
+                    if (_user.CarryTimer <= 0)
                     {
-                        User.CarryItem(0);
+                        _user.CarryItem(0);
                     }
                 }
 
                 bool invalidSetStep = false;
 
-                if (User.SetStep)
+                if (_user.SetStep)
                 {
-                    if (CanWalk(User.SetX, User.SetY, 0, true) || User.AllowOverride || AllowWalkthrough == true)
+                    if (CanWalk(_user.SetX, _user.SetY, 0, true) || _user.AllowOverride || AllowWalkthrough == true)
                     {
-                        UserMatrix[User.X, User.Y] = false;
+                        UserMatrix[_user.X, _user.Y] = false;
 
-                        User.X = User.SetX;
-                        User.Y = User.SetY;
-                        User.Z = User.SetZ;
+                        _user.X = _user.SetX;
+                        _user.Y = _user.SetY;
+                        _user.Z = _user.SetZ;
 
-                        UserMatrix[User.X, User.Y] = true;
+                        UserMatrix[_user.X, _user.Y] = true;
 
-                        UpdateUserStatus(User);
+                        UpdateUserStatus(_user);
                     }
                     else
                     {
                         invalidSetStep = true;
                     }
 
-                    User.SetStep = false;
+                    _user.SetStep = false;
                 }
 
-                if (User.PathRecalcNeeded)
+                if (_user.PathRecalcNeeded)
                 {
-                    Pathfinder Pathfinder = new Pathfinder(this, User);
+                    Pathfinder Pathfinder = new Pathfinder(this, _user);
 
-                    User.GoalX = User.PathRecalcX;
-                    User.GoalY = User.PathRecalcY;
+                    _user.GoalX = _user.PathRecalcX;
+                    _user.GoalY = _user.PathRecalcY;
 
-                    User.Path.Clear();
-                    User.Path = Pathfinder.FindPath();
+                    _user.Path.Clear();
+                    _user.Path = Pathfinder.FindPath();
 
-                    if (User.Path.Count > 1)
+                    if (_user.Path.Count > 1)
                     {
-                        User.PathStep = 1;
-                        User.IsWalking = true;
-                        User.PathRecalcNeeded = false;
+                        _user.PathStep = 1;
+                        _user.IsWalking = true;
+                        _user.PathRecalcNeeded = false;
                     }
                     else
                     {
-                        User.PathRecalcNeeded = false;
-                        User.Path.Clear();
+                        _user.PathRecalcNeeded = false;
+                        _user.Path.Clear();
                     }
                 }
 
-                if (User.IsWalking)
+                if (_user.IsWalking)
                 {
-                    if (invalidSetStep || User.PathStep >= User.Path.Count || User.GoalX == User.X && User.Y == User.GoalY)
+                    if (invalidSetStep || _user.PathStep >= _user.Path.Count || _user.GoalX == _user.X && _user.Y == _user.GoalY)
                     {
-                        User.Path.Clear();
-                        User.IsWalking = false;
-                        User.RemoveStatus("mv");
-                        User.PathRecalcNeeded = false;
+                        _user.Path.Clear();
+                        _user.IsWalking = false;
+                        _user.RemoveStatus("mv");
+                        _user.PathRecalcNeeded = false;
 
-                        if (User.X == Model.DoorX && User.Y == Model.DoorY && !ToRemove.Contains(User.HabboId) && !User.IsBot)
+                        if (_user.X == Model.DoorX && _user.Y == Model.DoorY && !ToRemove.Contains(_user.HabboId) && !_user.IsBot)
                         {
-                            ToRemove.Add(User.HabboId);
+                            ToRemove.Add(_user.HabboId);
                         }
 
-                        UpdateUserStatus(User);
+                        UpdateUserStatus(_user);
                     }
                     else
                     {
-                        int k = (User.Path.Count - User.PathStep) - 1;
-                        Coord NextStep = User.Path[k];
-                        User.PathStep++;
+                        int k = (_user.Path.Count - _user.PathStep) - 1;
+                        Coord NextStep = _user.Path[k];
+                        _user.PathStep++;
 
                         int nextX = NextStep.x;
                         int nextY = NextStep.y;
 
-                        User.RemoveStatus("mv");
+                        _user.RemoveStatus("mv");
 
                         bool LastStep = false;
 
-                        if (nextX == User.GoalX && nextY == User.GoalY)
+                        if (nextX == _user.GoalX && nextY == _user.GoalY)
                         {
                             LastStep = true;
                         }
 
-                        if (CanWalk(nextX, nextY, 0, LastStep) || User.AllowOverride)
+                        if (CanWalk(nextX, nextY, 0, LastStep) || _user.AllowOverride)
                         {
                             double nextZ = SqAbsoluteHeight(nextX, nextY);
 
-                            User.Statusses.Remove("lay");
-                            User.Statusses.Remove("sit");
-                            User.AddStatus("mv", nextX + "," + nextY + "," + nextZ.ToString().Replace(',', '.'));
+                            _user.Statusses.Remove("lay");
+                            _user.Statusses.Remove("sit");
+                            _user.AddStatus("mv", nextX + "," + nextY + "," + nextZ.ToString().Replace(',', '.'));
 
-                            int newRot = Rotation.Calculate(User.X, User.Y, nextX, nextY);
+                            int newRot = Rotation.Calculate(_user.X, _user.Y, nextX, nextY);
 
-                            User.RotBody = newRot;
-                            User.RotHead = newRot;
+                            _user.RotBody = newRot;
+                            _user.RotHead = newRot;
 
-                            User.SetStep = true;
-                            User.SetX = BedMatrix[nextX, nextY].x;
-                            User.SetY = BedMatrix[nextX, nextY].y;
-                            User.SetZ = nextZ;
+                            _user.SetStep = true;
+                            _user.SetX = BedMatrix[nextX, nextY].x;
+                            _user.SetY = BedMatrix[nextX, nextY].y;
+                            _user.SetZ = nextZ;
                         }
                         else
                         {
-                            User.IsWalking = false;
+                            _user.IsWalking = false;
                         }
                     }
 
-                    User.UpdateNeeded = true;
+                    _user.UpdateNeeded = true;
                 }
                 else
                 {
-                    if (User.Statusses.ContainsKey("mv"))
+                    if (_user.Statusses.ContainsKey("mv"))
                     {
-                        User.RemoveStatus("mv");
-                        User.UpdateNeeded = true;
+                        _user.RemoveStatus("mv");
+                        _user.UpdateNeeded = true;
                     }
                 }
 
-                if (User.IsBot)
+                if (_user.IsBot)
                 {
-                    User.BotAI.OnTimerTick();
+                    _user.BotAI.OnTimerTick();
                 }
                 else
                 {
@@ -1109,15 +1098,11 @@ namespace Uber.HabboHotel.Rooms
 
         public RoomUser GetPet(uint PetId)
         {
-            List<RoomUser>.Enumerator Users = this.UserList.GetEnumerator();
-
-            while (Users.MoveNext())
+            foreach (var _pet in UserList)
             {
-                RoomUser User = Users.Current;
-
-                if (User.IsBot && User.IsPet && User.PetData != null && User.PetData.PetId == PetId)
+                if (_pet.IsBot && _pet.IsPet && _pet.PetData != null && _pet.PetData.PetId == PetId)
                 {
-                    return User;
+                    return _pet;
                 }
             }
             return null;
@@ -1591,11 +1576,9 @@ namespace Uber.HabboHotel.Rooms
 
         public void UpdateUserStatusses()
         {
-            List<RoomUser>.Enumerator Users = UserList.GetEnumerator();
-
-            while (Users.MoveNext())
+            foreach (var _user in UserList)
             {
-                UpdateUserStatus(Users.Current);
+                UpdateUserStatus(_user);
             }
         }
 

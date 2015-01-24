@@ -80,40 +80,30 @@ namespace Uber.HabboHotel.Users.Messenger
 
         public MessengerRequest GetRequest(uint RequestId)
         {
-            List<MessengerRequest>.Enumerator eRequests = this.Requests.GetEnumerator();
-
-            while (eRequests.MoveNext())
+            foreach (var _request in Requests)
             {
-                MessengerRequest Request = eRequests.Current;
-
-                if (Request.RequestId == RequestId)
+                if (_request.RequestId == RequestId)
                 {
-                    return Request;
+                    return _request;
                 }
             }
-
             return null;
         }
 
         public void OnStatusChanged(bool instantUpdate)
         {
-            List<MessengerBuddy>.Enumerator eBuddies = this.Buddies.GetEnumerator();
-
-            while (eBuddies.MoveNext())
+            foreach (var _buddy in Buddies)
             {
-                MessengerBuddy Buddy = eBuddies.Current;
-                GameClient Client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(Buddy.Id);
-
-                if (Client == null || Client.GetHabbo() == null || Client.GetHabbo().GetMessenger() == null)
+                GameClient _client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(_buddy.Id);
+                if (_client == null || _client.GetHabbo() == null || _client.GetHabbo().GetMessenger() == null)
                 {
                     continue;
                 }
-
-                Client.GetHabbo().GetMessenger().SetUpdateNeeded(UserId);
+                _client.GetHabbo().GetMessenger().SetUpdateNeeded(UserId);
 
                 if (instantUpdate)
                 {
-                    Client.GetHabbo().GetMessenger().ForceUpdate();
+                    _client.GetHabbo().GetMessenger().ForceUpdate();
                 }
             }
         }
