@@ -11,7 +11,8 @@ namespace Uber.Communication.Incoming.Users
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.GetHabbo().UpdateCreditsBalance(false);
+            Session.GetHabbo().UpdateActivityPointsBalance(false);
         }
     }
 }

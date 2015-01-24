@@ -11,7 +11,7 @@ namespace Uber.Communication.Incoming.Users
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.SendPacket(UberEnvironment.GetGame().GetAchievementManager().SerializeAchievementList(Session));
         }
     }
 }

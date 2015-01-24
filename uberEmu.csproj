@@ -340,12 +340,10 @@
     <Compile Include="HabboHotel\Users\Habbo.cs" />
     <Compile Include="HabboHotel\Misc\CrossdomainPolicy.cs" />
     <Compile Include="Messages\ClientMessage.cs" />
-    <Compile Include="Messages\Requests\Catalog.cs" />
     <Compile Include="Messages\Requests\Rooms.cs" />
     <Compile Include="Messages\Requests\Navigator.cs" />
     <Compile Include="Messages\Requests\Help.cs" />
     <Compile Include="Messages\Requests\Messenger.cs" />
-    <Compile Include="Messages\Requests\Users.cs" />
     <Compile Include="Messages\Requests\Handshake.cs" />
     <Compile Include="Messages\Requests\Global.cs" />
     <Compile Include="Messages\ServerMessage.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Uber.Communication.Incoming.Catalog;
+using Uber.Communication.Incoming.Users;
 using Uber.Communication.Outgoing;
 
 namespace Uber.Communication
@@ -104,6 +105,21 @@ namespace Uber.Communication
 
         public void Users()
         {
+            this.RequestHandlers.Add(7, new InfoRetrieveMessageEvent());
+            this.RequestHandlers.Add(8, new GetCreditsInfoEvent());
+            this.RequestHandlers.Add(26, new ScrGetUserInfoMessageEvent());
+
+            this.RequestHandlers.Add(157, new GetBadgesEvent());
+            this.RequestHandlers.Add(158, new SetActivatedBadgesEvent());
+            this.RequestHandlers.Add(370, new GetAchievementsEvent());
+
+            this.RequestHandlers.Add(44, new UpdateFigureDataMessageEvent());
+            this.RequestHandlers.Add(375, new GetWardrobeMessageEvent());
+            this.RequestHandlers.Add(376, new SaveWardrobeOutfitMessageEvent());
+
+            this.RequestHandlers.Add(404, new RequestFurniInventoryEvent());
+            this.RequestHandlers.Add(484, new ChangeMottoMessageEvent());
+            this.RequestHandlers.Add(3000, new GetPetInventoryEvent());
         }
     }
 }

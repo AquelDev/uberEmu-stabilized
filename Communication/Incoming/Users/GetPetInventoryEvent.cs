@@ -11,7 +11,12 @@ namespace Uber.Communication.Incoming.Users
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (Session.GetHabbo().GetInventoryComponent() == null)
+            {
+                return;
+            }
+
+            Session.SendPacket(Session.GetHabbo().GetInventoryComponent().SerializePetInventory());
         }
     }
 }

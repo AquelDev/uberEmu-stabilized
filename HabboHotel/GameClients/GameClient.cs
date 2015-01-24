@@ -173,8 +173,6 @@ namespace Uber.HabboHotel.GameClients
 
             WelcomeMesage("Please change your welcome Message in GameClient.cs\n\n-PowahAlert");
             UberEnvironment.GetGame().GetAchievementManager().UnlockAchievement(this, 11, 1);
-
-            MessageHandler.RegisterUsers();
             MessageHandler.RegisterMessenger();
             MessageHandler.RegisterNavigator();
             MessageHandler.RegisterRooms();
