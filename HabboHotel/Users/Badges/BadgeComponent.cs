@@ -58,14 +58,11 @@ namespace Uber.HabboHotel.Users.Badges
 
         public Badge GetBadge(string Badge)
         {
-            using (TimedLock.Lock(Badges))
+            foreach (Badge B in Badges)
             {
-                foreach (Badge B in Badges)
+                if (Badge.ToLower() == B.Code.ToLower())
                 {
-                    if (Badge.ToLower() == B.Code.ToLower())
-                    {
-                        return B;
-                    }
+                    return B;
                 }
             }
 
@@ -119,12 +116,9 @@ namespace Uber.HabboHotel.Users.Badges
 
         public void ResetSlots()
         {
-            using (TimedLock.Lock(Badges))
+            foreach (Badge Badge in Badges)
             {
-                foreach (Badge Badge in Badges)
-                {
-                    Badge.Slot = 0;
-                }
+                Badge.Slot = 0;
             }
         }
 
@@ -171,16 +165,13 @@ namespace Uber.HabboHotel.Users.Badges
             ServerPacket Message = new ServerPacket(229);
             Message.AppendInt32(Count);
 
-            using (TimedLock.Lock(Badges))
+            foreach (Badge Badge in Badges)
             {
-                foreach (Badge Badge in Badges)
-                {
-                    Message.AppendStringWithBreak(Badge.Code);
+                Message.AppendStringWithBreak(Badge.Code);
 
-                    if (Badge.Slot > 0)
-                    {
-                        EquippedBadges.Add(Badge);
-                    }
+                if (Badge.Slot > 0)
+                {
+                    EquippedBadges.Add(Badge);
                 }
             }
 

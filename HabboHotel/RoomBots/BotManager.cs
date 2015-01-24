@@ -63,14 +63,11 @@ namespace Uber.HabboHotel.RoomBots
 
         public RoomBot GetBot(uint BotId)
         {
-            using (TimedLock.Lock(Bots))
+            foreach (RoomBot Bot in Bots)
             {
-                foreach (RoomBot Bot in Bots)
+                if (Bot.BotId == BotId)
                 {
-                    if (Bot.BotId == BotId)
-                    {
-                        return Bot;
-                    }
+                    return Bot;
                 }
             }
 

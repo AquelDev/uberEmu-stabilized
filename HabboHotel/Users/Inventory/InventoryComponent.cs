@@ -66,34 +66,34 @@ namespace Uber.HabboHotel.Users.Inventory
         public void LoadInventory()
         {
             this.InventoryItems.Clear();
-            DataTable Data = null;
+            DataTable _items = null;
 
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
                 dbClient.AddParamWithValue("userid", UserId);
-                Data = dbClient.ReadDataTable("SELECT id,base_item,extra_data FROM user_items WHERE user_id = @userid");
+                _items = dbClient.ReadDataTable("SELECT id,base_item,extra_data FROM user_items WHERE user_id = @userid");
             }
 
-            if (Data != null)
+            if (_items != null)
             {
-                foreach (DataRow Row in Data.Rows)
+                foreach (DataRow Row in _items.Rows)
                 {
                     InventoryItems.Add(new UserItem((uint)Row["id"], (uint)Row["base_item"], (string)Row["extra_data"]));
                 }
             }
 
             this.InventoryPets.Clear();
-            DataTable Data = null;
+            DataTable _pets = null;
 
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
                 dbClient.AddParamWithValue("userid", UserId);
-                Data = dbClient.ReadDataTable("SELECT * FROM user_pets WHERE user_id = @userid AND room_id <= 0");
+                _pets = dbClient.ReadDataTable("SELECT * FROM user_pets WHERE user_id = @userid AND room_id <= 0");
             }
 
-            if (Data != null)
+            if (_pets != null)
             {
-                foreach (DataRow Row in Data.Rows)
+                foreach (DataRow Row in _pets.Rows)
                 {
                     InventoryPets.Add(UberEnvironment.GetGame().GetCatalog().GeneratePetFromRow(Row));
                 }
@@ -123,56 +123,35 @@ namespace Uber.HabboHotel.Users.Inventory
 
         public Pet GetPet(uint Id)
         {
-           // lock (this.InventoryPets)
-            using (TimedLock.Lock(this.InventoryPets))
+            foreach (var _pet in InventoryPets)
             {
-                List<Pet>.Enumerator Pets = this.InventoryPets.GetEnumerator();
-
-                while (Pets.MoveNext())
+                if (_pet.PetId == Id)
                 {
-                    Pet Pet = Pets.Current;
-
-                    if (Pet.PetId == Id)
-                    {
-                        return Pet;
-                    }
+                    return _pet;
                 }
             }
-
             return null;
         }
 
         public UserItem GetItem(uint Id)
         {
-            using (TimedLock.Lock(this.InventoryItems))
+            foreach (var _item in InventoryItems)
             {
-                List<UserItem>.Enumerator Items = this.InventoryItems.GetEnumerator();
-
-                while (Items.MoveNext())
+                if (_item.Id == Id)
                 {
-                    UserItem Item = Items.Current;
-
-                    if (Item.Id == Id)
-                    {
-                        return Item;
-                    }
+                    return _item;
                 }
             }
-
             return null;
         }
 
         public void AddItem(uint Id, uint BaseItem, string ExtraData)
         {
-            using (TimedLock.Lock(this.InventoryItems))
+            InventoryItems.Add(new UserItem(Id, BaseItem, ExtraData));
+            using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
-                InventoryItems.Add(new UserItem(Id, BaseItem, ExtraData));
-
-                using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
-                {
-                    dbClient.AddParamWithValue("extra_data", ExtraData);
-                    dbClient.ExecuteQuery("INSERT INTO user_items (id,user_id,base_item,extra_data) VALUES ('" + Id + "','" + UserId + "','" + BaseItem + "',@extra_data)");
-                }
+                dbClient.AddParamWithValue("extra_data", ExtraData);
+                dbClient.ExecuteQuery("INSERT INTO user_items (id,user_id,base_item,extra_data) VALUES ('" + Id + "','" + UserId + "','" + BaseItem + "',@extra_data)");
             }
         }
 
@@ -200,25 +179,21 @@ namespace Uber.HabboHotel.Users.Inventory
 
         public bool RemovePet(uint PetId)
         {
-            using (TimedLock.Lock(this.InventoryPets))
+            foreach (Pet Pet in this.InventoryPets)
             {
-                foreach (Pet Pet in this.InventoryPets)
+                if (Pet.PetId != PetId)
                 {
-                    if (Pet.PetId != PetId)
-                    {
-                        continue;
-                    }
-
-                    this.InventoryPets.Remove(Pet);
-
-                    ServerPacket RemoveMessage = new ServerPacket(604);
-                    RemoveMessage.AppendUInt(PetId);
-                    GetClient().SendPacket(RemoveMessage);
-
-                    return true;
+                    continue;
                 }
-            }
 
+                this.InventoryPets.Remove(Pet);
+
+                ServerPacket RemoveMessage = new ServerPacket(604);
+                RemoveMessage.AppendUInt(PetId);
+                GetClient().SendPacket(RemoveMessage);
+
+                return true;
+            }
             return false;
         }
 
@@ -240,15 +215,10 @@ namespace Uber.HabboHotel.Users.Inventory
             GetClient().GetMessageHandler().GetResponse().Init(99);
             GetClient().GetMessageHandler().GetResponse().AppendUInt(Id);
             GetClient().GetMessageHandler().SendResponse();
-
-            using (TimedLock.Lock(this.InventoryItems))
+            InventoryItems.Remove(GetItem(Id));
+            using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
-                InventoryItems.Remove(GetItem(Id));
-
-                using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
-                {
-                    dbClient.ExecuteQuery("DELETE FROM user_items WHERE id = '" + Id + "' LIMIT 1");
-                }
+                dbClient.ExecuteQuery("DELETE FROM user_items WHERE id = '" + Id + "' LIMIT 1");
             }
         }
 
@@ -256,17 +226,10 @@ namespace Uber.HabboHotel.Users.Inventory
         {
             ServerPacket Message = new ServerPacket(140);
             Message.AppendInt32(this.ItemCount);
-
-            using (TimedLock.Lock(this.InventoryItems))
+            foreach (var _item in InventoryItems)
             {
-                List<UserItem>.Enumerator eItems = this.InventoryItems.GetEnumerator();
-
-                while (eItems.MoveNext())
-                {
-                    eItems.Current.Serialize(Message, true);
-                }
+                _item.Serialize(Message, true);
             }
-
             Message.AppendInt32(this.ItemCount);
             return Message;
         }

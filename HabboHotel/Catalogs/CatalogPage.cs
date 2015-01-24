@@ -97,14 +97,11 @@ namespace Uber.HabboHotel.Catalogs
 
         public CatalogItem GetItem(uint Id)
         {
-            using (TimedLock.Lock(Items))
+            foreach (CatalogItem Item in Items)
             {
-                foreach (CatalogItem Item in Items)
+                if (Item.Id == Id)
                 {
-                    if (Item.Id == Id)
-                    {
-                        return Item;
-                    }
+                    return Item;
                 }
             }
 

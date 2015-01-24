@@ -113,10 +113,20 @@ namespace Uber.HabboHotel.GameClients
                 {
                     ServerPacket PingMessage = new ServerPacket(50);
                     List<uint> TimedOutClients = new List<uint>();
-
-                    lock (this.Clients)
+                    foreach (var _client in Clients)
                     {
-                        Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
+                        if (_client.Value.PongOK)
+                        {
+                            _client.Value.PongOK = false;
+                            _client.Value.GetConnection().SendPacket(PingMessage);
+                        }
+                        else
+                        {
+                            UberEnvironment.GetLogging().WriteLine(_client.Value.ClientId + " has timed out.", Core.LogLevel.Warning);
+                            TimedOutClients.Add(_client.Value.ClientId);
+                        }
+                    }
+                    Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
 
                         while (eClients.MoveNext())
                         {
@@ -133,14 +143,13 @@ namespace Uber.HabboHotel.GameClients
                                 TimedOutClients.Add(Client.ClientId);
                             }
                         }
-                    }
 
                     foreach (uint ClientId in TimedOutClients)
                     {
                         StopClient(ClientId);
                     }
 
-                   
+
                     TimedOutClients.Clear();
                     Thread.Sleep(interval);
                     UberEnvironment.GetLogging().WriteLine("[Info] Checking Pings", Core.LogLevel.Warning);
@@ -153,7 +162,7 @@ namespace Uber.HabboHotel.GameClients
                 }
                 catch (InvalidOperationException)
                 {
-                    
+
                     UberEnvironment.GetLogging().WriteLine("Invalid Operation Exception on Ping Thread.", Core.LogLevel.Error);
                     StopConnectionChecker();
                     StartConnectionChecker();
@@ -163,6 +172,33 @@ namespace Uber.HabboHotel.GameClients
 
         public GameClient GetClientByHabbo(uint HabboId)
         {
+            foreach (var _client in Clients)
+            {
+                if (_client.Value.GetHabbo() == null)
+                {
+                    continue;
+                }
+                if (_client.Value.GetHabbo().Id == HabboId)
+                {
+                    return _client.Value;
+                }
+            }
+            return null;
+        }
+
+        public GameClient GetClientByHabbo(string Name)
+        {
+            foreach (var _client in Clients)
+            {
+                if (_client.Value.GetHabbo() == null)
+                {
+                    continue;
+                }
+                if (_client.Value.GetHabbo().Username.ToLower() == Name.ToLower())
+                {
+                    return _client.Value;
+                }
+            }
             Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
 
             while (eClients.MoveNext())
@@ -174,37 +210,11 @@ namespace Uber.HabboHotel.GameClients
                     continue;
                 }
 
-                if (Client.GetHabbo().Id == HabboId)
+                if (Client.GetHabbo().Username.ToLower() == Name.ToLower())
                 {
                     return Client;
                 }
             }
-
-            return null;
-        }
-
-        public GameClient GetClientByHabbo(string Name)
-        {
-            using (TimedLock.Lock(this.Clients))
-            {
-                Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-                while (eClients.MoveNext())
-                {
-                    GameClient Client = eClients.Current.Value;
-
-                    if (Client.GetHabbo() == null)
-                    {
-                        continue;
-                    }
-
-                    if (Client.GetHabbo().Username.ToLower() == Name.ToLower())
-                    {
-                        return Client;
-                    }
-                }
-            }
-
             return null;
         }
 
@@ -213,50 +223,34 @@ namespace Uber.HabboHotel.GameClients
             this.BroadcastMessage(Message, "");
         }
 
-        public void BroadcastMessage(ServerPacket Message, String FuseRequirement)
+        public void BroadcastMessage(ServerPacket Message, string FuseRequirement)
         {
-            using (TimedLock.Lock(this.Clients))
+            foreach (var _client in Clients)
             {
-                Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-                while (eClients.MoveNext())
+                try
                 {
-                    GameClient Client = eClients.Current.Value;
-
-                    try
+                    if (FuseRequirement.Length > 0)
                     {
-                        if (FuseRequirement.Length > 0)
+                        if (_client.Value.GetHabbo() == null || !_client.Value.GetHabbo().HasFuse(FuseRequirement))
                         {
-                            if (Client.GetHabbo() == null || !Client.GetHabbo().HasFuse(FuseRequirement))
-                            {
-                                continue;
-                            }
+                            continue;
                         }
-
-                        Client.SendPacket(Message);
                     }
-                    catch (Exception) { }
+                    _client.Value.SendPacket(Message);
                 }
+                catch (Exception) { }
             }
         }
 
         public void CheckEffects()
         {
-            using (TimedLock.Lock(this.Clients))
+            foreach (var _client in Clients)
             {
-                Dictionary<uint, GameClient>.Enumerator eClients = this.Clients.GetEnumerator();
-
-                while (eClients.MoveNext())
+                if (_client.Value.GetHabbo() == null || _client.Value.GetHabbo().GetAvatarEffectsInventoryComponent() == null)
                 {
-                    GameClient Client = eClients.Current.Value;
-
-                    if (Client.GetHabbo() == null || Client.GetHabbo().GetAvatarEffectsInventoryComponent() == null)
-                    {
-                        continue;
-                    }
-
-                    Client.GetHabbo().GetAvatarEffectsInventoryComponent().CheckExpired();
+                    continue;
                 }
+                _client.Value.GetHabbo().GetAvatarEffectsInventoryComponent().CheckExpired();
             }
         }
     }

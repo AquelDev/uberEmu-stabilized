@@ -109,17 +109,13 @@ namespace Uber.HabboHotel.RoomBots
 
         public BotResponse GetResponse(string Message)
         {
-            using (TimedLock.Lock(Responses))
+            foreach (BotResponse Response in Responses)
             {
-                foreach (BotResponse Response in Responses)
+                if (Response.KeywordMatched(Message))
                 {
-                    if (Response.KeywordMatched(Message))
-                    {
-                        return Response;
-                    }
+                    return Response;
                 }
             }
-
             return null;
         }
 
@@ -143,7 +139,7 @@ namespace Uber.HabboHotel.RoomBots
 
                 case "pet":
 
-                    return new PetBot(VirtualId); 
+                    return new PetBot(VirtualId);
             }
         }
     }

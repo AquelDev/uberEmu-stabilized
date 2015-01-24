@@ -348,8 +348,6 @@ namespace Uber.HabboHotel.Navigators
                     case -5:
 
                         List<uint> FriendRooms = new List<uint>();
-
-                        // lock (Session.GetHabbo().GetMessenger().GetBuddies())
                         foreach (MessengerBuddy Buddy in Session.GetHabbo().GetMessenger().GetBuddies())
                         {
                             GameClient Client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(Buddy.Id);

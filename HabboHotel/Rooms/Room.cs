@@ -109,17 +109,14 @@ namespace Uber.HabboHotel.Rooms
             {
                 int i = 0;
 
-                using (TimedLock.Lock(UserList))
+                foreach (RoomUser User in UserList)
                 {
-                    foreach (RoomUser User in UserList)
+                    if (User.IsBot)
                     {
-                        if (User.IsBot)
-                        {
-                            continue;
-                        }
-
-                        i++;
+                        continue;
                     }
+
+                    i++;
                 }
 
                 return i;
@@ -156,17 +153,14 @@ namespace Uber.HabboHotel.Rooms
             {
                 List<RoomItem> FloorItems = new List<RoomItem>();
 
-                using (TimedLock.Lock(Items))
+                foreach (RoomItem Item in Items)
                 {
-                    foreach (RoomItem Item in Items)
+                    if (!Item.IsFloorItem)
                     {
-                        if (!Item.IsFloorItem)
-                        {
-                            continue;
-                        }
-
-                        FloorItems.Add(Item);
+                        continue;
                     }
+
+                    FloorItems.Add(Item);
                 }
 
                 return FloorItems;
@@ -179,17 +173,14 @@ namespace Uber.HabboHotel.Rooms
             {
                 List<RoomItem> WallItems = new List<RoomItem>();
 
-                using (TimedLock.Lock(Items))
+                foreach (RoomItem Item in Items)
                 {
-                    foreach (RoomItem Item in Items)
+                    if (!Item.IsWallItem)
                     {
-                        if (!Item.IsWallItem)
-                        {
-                            continue;
-                        }
-
-                        WallItems.Add(Item);
+                        continue;
                     }
+
+                    WallItems.Add(Item);
                 }
 
                 return WallItems;
@@ -227,20 +218,13 @@ namespace Uber.HabboHotel.Rooms
             get
             {
                 int c = 0;
-
-                using (TimedLock.Lock(this.UserList))
+                foreach (var _user in UserList)
                 {
-                    List<RoomUser>.Enumerator Users = this.UserList.GetEnumerator();
-
-                    while (Users.MoveNext())
+                    if (_user.IsPet)
                     {
-                        if (Users.Current.IsPet)
-                        {
-                            c++;
-                        }
+                        c++;
                     }
                 }
-
                 return c;
             }
         }
@@ -366,10 +350,7 @@ namespace Uber.HabboHotel.Rooms
                 BotUser.BotAI.Init(-1, BotUser.VirtualId, RoomId);
             }
 
-            using (TimedLock.Lock(this.UserList))
-            {
-                UserList.Add(BotUser);
-            }
+            UserList.Add(BotUser);
 
             UpdateUserStatus(BotUser);
             BotUser.UpdateNeeded = true;
@@ -406,39 +387,33 @@ namespace Uber.HabboHotel.Rooms
 
         public void OnUserSay(RoomUser User, string Message, bool Shout)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser Usr in UserList)
             {
-                foreach (RoomUser Usr in UserList)
+                if (!Usr.IsBot)
                 {
-                    if (!Usr.IsBot)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (Shout)
-                    {
-                        Usr.BotAI.OnUserShout(User, Message);
-                    }
-                    else
-                    {
-                        Usr.BotAI.OnUserSay(User, Message);
-                    }
+                if (Shout)
+                {
+                    Usr.BotAI.OnUserShout(User, Message);
+                }
+                else
+                {
+                    Usr.BotAI.OnUserSay(User, Message);
                 }
             }
         }
 
         public void RegenerateUserMatrix()
         {
-            using (TimedLock.Lock(this.UserList))
-            {
-                this.UserMatrix = new bool[Model.MapSizeX, Model.MapSizeY];
-                List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
+            this.UserMatrix = new bool[Model.MapSizeX, Model.MapSizeY];
+            List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
 
-                while (eUsers.MoveNext())
-                {
-                    RoomUser User = eUsers.Current;
-                    this.UserMatrix[User.X, User.Y] = true;
-                }
+            while (eUsers.MoveNext())
+            {
+                RoomUser User = eUsers.Current;
+                this.UserMatrix[User.X, User.Y] = true;
             }
         }
 
@@ -476,99 +451,96 @@ namespace Uber.HabboHotel.Rooms
             }
 
             // Loop through the items in the room
-            using (TimedLock.Lock(Items))
+            foreach (RoomItem Item in Items)
             {
-                foreach (RoomItem Item in Items)
+                // If we're dealing with anything other than a floor item, skip
+                if (Item.GetBaseItem().Type.ToLower() != "s")
                 {
-                    // If we're dealing with anything other than a floor item, skip
-                    if (Item.GetBaseItem().Type.ToLower() != "s")
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // If this is a rug, ignore it.
-                    if (Item.GetBaseItem().Height <= 0)
-                    {
-                        continue;
-                    }
+                // If this is a rug, ignore it.
+                if (Item.GetBaseItem().Height <= 0)
+                {
+                    continue;
+                }
 
+                // Make sure we're the highest item here!
+                if (TopStackHeight[Item.X, Item.Y] <= Item.Z)
+                {
+                    TopStackHeight[Item.X, Item.Y] = Item.Z;
+
+                    // If this item is walkable and on the floor, allow users to walk here.
+                    if (Item.GetBaseItem().Walkable)
+                    {
+                        Matrix[Item.X, Item.Y] = MatrixState.WALKABLE;
+                        HeightMatrix[Item.X, Item.Y] = Item.GetBaseItem().Height;
+                    }
+                    // If this item is a gate, open, and on the floor, allow users to walk here.
+                    else if (Item.Z <= (Model.SqFloorHeight[Item.X, Item.Y] + 0.1) && Item.GetBaseItem().InteractionType.ToLower() == "gate" && Item.ExtraData == "1")
+                    {
+                        Matrix[Item.X, Item.Y] = MatrixState.WALKABLE;
+                    }
+                    // If this item is a set or a bed, make it's square walkable (but only if last step)
+                    else if (Item.GetBaseItem().IsSeat || Item.GetBaseItem().InteractionType.ToLower() == "bed")
+                    {
+                        Matrix[Item.X, Item.Y] = MatrixState.WALKABLE_LASTSTEP;
+                    }
+                    // Finally, if it's none of those, block the square.
+                    else
+                    {
+                        Matrix[Item.X, Item.Y] = MatrixState.BLOCKED;
+                    }
+                }
+
+                Dictionary<int, AffectedTile> Points = GetAffectedTiles(Item.GetBaseItem().Length, Item.GetBaseItem().Width, Item.X, Item.Y, Item.Rot);
+
+                if (Points == null)
+                {
+                    Points = new Dictionary<int, AffectedTile>();
+                }
+
+                foreach (AffectedTile Tile in Points.Values)
+                {
                     // Make sure we're the highest item here!
-                    if (TopStackHeight[Item.X, Item.Y] <= Item.Z)
+                    if (TopStackHeight[Tile.X, Tile.Y] <= Item.Z)
                     {
-                        TopStackHeight[Item.X, Item.Y] = Item.Z;
+                        TopStackHeight[Tile.X, Tile.Y] = Item.Z;
 
                         // If this item is walkable and on the floor, allow users to walk here.
                         if (Item.GetBaseItem().Walkable)
                         {
-                            Matrix[Item.X, Item.Y] = MatrixState.WALKABLE;
-                            HeightMatrix[Item.X, Item.Y] = Item.GetBaseItem().Height;
+                            Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE;
+                            HeightMatrix[Tile.X, Tile.Y] = Item.GetBaseItem().Height;
                         }
                         // If this item is a gate, open, and on the floor, allow users to walk here.
                         else if (Item.Z <= (Model.SqFloorHeight[Item.X, Item.Y] + 0.1) && Item.GetBaseItem().InteractionType.ToLower() == "gate" && Item.ExtraData == "1")
                         {
-                            Matrix[Item.X, Item.Y] = MatrixState.WALKABLE;
+                            Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE;
                         }
                         // If this item is a set or a bed, make it's square walkable (but only if last step)
                         else if (Item.GetBaseItem().IsSeat || Item.GetBaseItem().InteractionType.ToLower() == "bed")
                         {
-                            Matrix[Item.X, Item.Y] = MatrixState.WALKABLE_LASTSTEP;
+                            Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE_LASTSTEP;
                         }
                         // Finally, if it's none of those, block the square.
                         else
                         {
-                            Matrix[Item.X, Item.Y] = MatrixState.BLOCKED;
+                            Matrix[Tile.X, Tile.Y] = MatrixState.BLOCKED;
                         }
                     }
 
-                    Dictionary<int, AffectedTile> Points = GetAffectedTiles(Item.GetBaseItem().Length, Item.GetBaseItem().Width, Item.X, Item.Y, Item.Rot);
-
-                    if (Points == null)
+                    // Set bad maps
+                    if (Item.GetBaseItem().InteractionType.ToLower() == "bed")
                     {
-                        Points = new Dictionary<int, AffectedTile>();
-                    }
-
-                    foreach (AffectedTile Tile in Points.Values)
-                    {
-                        // Make sure we're the highest item here!
-                        if (TopStackHeight[Tile.X, Tile.Y] <= Item.Z)
+                        if (Item.Rot == 0 || Item.Rot == 4)
                         {
-                            TopStackHeight[Tile.X, Tile.Y] = Item.Z;
-
-                            // If this item is walkable and on the floor, allow users to walk here.
-                            if (Item.GetBaseItem().Walkable)
-                            {
-                                Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE;
-                                HeightMatrix[Tile.X, Tile.Y] = Item.GetBaseItem().Height;
-                            }
-                            // If this item is a gate, open, and on the floor, allow users to walk here.
-                            else if (Item.Z <= (Model.SqFloorHeight[Item.X, Item.Y] + 0.1) && Item.GetBaseItem().InteractionType.ToLower() == "gate" && Item.ExtraData == "1")
-                            {
-                                Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE;
-                            }
-                            // If this item is a set or a bed, make it's square walkable (but only if last step)
-                            else if (Item.GetBaseItem().IsSeat || Item.GetBaseItem().InteractionType.ToLower() == "bed")
-                            {
-                                Matrix[Tile.X, Tile.Y] = MatrixState.WALKABLE_LASTSTEP;
-                            }
-                            // Finally, if it's none of those, block the square.
-                            else
-                            {
-                                Matrix[Tile.X, Tile.Y] = MatrixState.BLOCKED;
-                            }
+                            BedMatrix[Tile.X, Tile.Y].y = Item.Y;
                         }
 
-                        // Set bad maps
-                        if (Item.GetBaseItem().InteractionType.ToLower() == "bed")
+                        if (Item.Rot == 2 || Item.Rot == 6)
                         {
-                            if (Item.Rot == 0 || Item.Rot == 4)
-                            {
-                                BedMatrix[Tile.X, Tile.Y].y = Item.Y;
-                            }
-
-                            if (Item.Rot == 2 || Item.Rot == 6)
-                            {
-                                BedMatrix[Tile.X, Tile.Y].x = Item.X;
-                            }
+                            BedMatrix[Tile.X, Tile.Y].x = Item.X;
                         }
                     }
                 }
@@ -669,14 +641,11 @@ namespace Uber.HabboHotel.Rooms
 
         public RoomItem GetItem(uint Id)
         {
-            using (TimedLock.Lock(Items))
+            foreach (RoomItem Item in Items)
             {
-                foreach (RoomItem Item in Items)
+                if (Item.Id == Id)
                 {
-                    if (Item.Id == Id)
-                    {
-                        return Item;
-                    }
+                    return Item;
                 }
             }
 
@@ -711,10 +680,7 @@ namespace Uber.HabboHotel.Rooms
                 SendMessage(Message);
             }
 
-            using (TimedLock.Lock(this.Items))
-            {
-                Items.Remove(Item);
-            }
+            Items.Remove(Item);
 
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
@@ -754,190 +720,184 @@ namespace Uber.HabboHotel.Rooms
             int i = 0;
 
             // Loop through all furni and process them if they want to be processed
-            using (TimedLock.Lock(this.Items))
+            List<RoomItem>.Enumerator eItems = this.Items.GetEnumerator();
+
+            while (eItems.MoveNext())
             {
-                List<RoomItem>.Enumerator eItems = this.Items.GetEnumerator();
+                RoomItem Item = eItems.Current;
 
-                while (eItems.MoveNext())
+                if (!Item.UpdateNeeded)
                 {
-                    RoomItem Item = eItems.Current;
-
-                    if (!Item.UpdateNeeded)
-                    {
-                        continue;
-                    }
-
-                    Item.ProcessUpdates();
+                    continue;
                 }
+
+                Item.ProcessUpdates();
             }
 
             // Loop through all users and bots and process them
-            using (TimedLock.Lock(this.UserList))
+            List<uint> ToRemove = new List<uint>();
+            List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
+
+            while (eUsers.MoveNext())
             {
-                List<uint> ToRemove = new List<uint>();
-                List<RoomUser>.Enumerator eUsers = this.UserList.GetEnumerator();
+                RoomUser User = eUsers.Current;
 
-                while (eUsers.MoveNext())
+                User.IdleTime++;
+
+                if (!User.IsAsleep && User.IdleTime >= 600)
                 {
-                    RoomUser User = eUsers.Current;
+                    User.IsAsleep = true;
 
-                    User.IdleTime++;
+                    ServerPacket FallAsleep = new ServerPacket(486);
+                    FallAsleep.AppendInt32(User.VirtualId);
+                    FallAsleep.AppendBoolean(true);
+                    SendMessage(FallAsleep);
+                }
 
-                    if (!User.IsAsleep && User.IdleTime >= 600)
+                if (User.NeedsAutokick && !ToRemove.Contains(User.HabboId))
+                {
+                    ToRemove.Add(User.HabboId);
+                }
+
+                if (User.CarryItemID > 0)
+                {
+                    User.CarryTimer--;
+
+                    if (User.CarryTimer <= 0)
                     {
-                        User.IsAsleep = true;
+                        User.CarryItem(0);
+                    }
+                }
 
-                        ServerPacket FallAsleep = new ServerPacket(486);
-                        FallAsleep.AppendInt32(User.VirtualId);
-                        FallAsleep.AppendBoolean(true);
-                        SendMessage(FallAsleep);
+                bool invalidSetStep = false;
+
+                if (User.SetStep)
+                {
+                    if (CanWalk(User.SetX, User.SetY, 0, true) || User.AllowOverride || AllowWalkthrough == true)
+                    {
+                        UserMatrix[User.X, User.Y] = false;
+
+                        User.X = User.SetX;
+                        User.Y = User.SetY;
+                        User.Z = User.SetZ;
+
+                        UserMatrix[User.X, User.Y] = true;
+
+                        UpdateUserStatus(User);
+                    }
+                    else
+                    {
+                        invalidSetStep = true;
                     }
 
-                    if (User.NeedsAutokick && !ToRemove.Contains(User.HabboId))
+                    User.SetStep = false;
+                }
+
+                if (User.PathRecalcNeeded)
+                {
+                    Pathfinder Pathfinder = new Pathfinder(this, User);
+
+                    User.GoalX = User.PathRecalcX;
+                    User.GoalY = User.PathRecalcY;
+
+                    User.Path.Clear();
+                    User.Path = Pathfinder.FindPath();
+
+                    if (User.Path.Count > 1)
                     {
-                        ToRemove.Add(User.HabboId);
+                        User.PathStep = 1;
+                        User.IsWalking = true;
+                        User.PathRecalcNeeded = false;
                     }
-
-                    if (User.CarryItemID > 0)
+                    else
                     {
-                        User.CarryTimer--;
-
-                        if (User.CarryTimer <= 0)
-                        {
-                            User.CarryItem(0);
-                        }
-                    }
-
-                    bool invalidSetStep = false;
-
-                    if (User.SetStep)
-                    {
-                        if (CanWalk(User.SetX, User.SetY, 0, true) || User.AllowOverride || AllowWalkthrough == true)
-                        {
-                            UserMatrix[User.X, User.Y] = false;
-
-                            User.X = User.SetX;
-                            User.Y = User.SetY;
-                            User.Z = User.SetZ;
-
-                            UserMatrix[User.X, User.Y] = true;
-
-                            UpdateUserStatus(User);
-                        }
-                        else
-                        {
-                            invalidSetStep = true;
-                        }
-
-                        User.SetStep = false;
-                    }
-
-                    if (User.PathRecalcNeeded)
-                    {
-                        Pathfinder Pathfinder = new Pathfinder(this, User);
-
-                        User.GoalX = User.PathRecalcX;
-                        User.GoalY = User.PathRecalcY;
-
+                        User.PathRecalcNeeded = false;
                         User.Path.Clear();
-                        User.Path = Pathfinder.FindPath();
+                    }
+                }
 
-                        if (User.Path.Count > 1)
+                if (User.IsWalking)
+                {
+                    if (invalidSetStep || User.PathStep >= User.Path.Count || User.GoalX == User.X && User.Y == User.GoalY)
+                    {
+                        User.Path.Clear();
+                        User.IsWalking = false;
+                        User.RemoveStatus("mv");
+                        User.PathRecalcNeeded = false;
+
+                        if (User.X == Model.DoorX && User.Y == Model.DoorY && !ToRemove.Contains(User.HabboId) && !User.IsBot)
                         {
-                            User.PathStep = 1;
-                            User.IsWalking = true;
-                            User.PathRecalcNeeded = false;
+                            ToRemove.Add(User.HabboId);
+                        }
+
+                        UpdateUserStatus(User);
+                    }
+                    else
+                    {
+                        int k = (User.Path.Count - User.PathStep) - 1;
+                        Coord NextStep = User.Path[k];
+                        User.PathStep++;
+
+                        int nextX = NextStep.x;
+                        int nextY = NextStep.y;
+
+                        User.RemoveStatus("mv");
+
+                        bool LastStep = false;
+
+                        if (nextX == User.GoalX && nextY == User.GoalY)
+                        {
+                            LastStep = true;
+                        }
+
+                        if (CanWalk(nextX, nextY, 0, LastStep) || User.AllowOverride)
+                        {
+                            double nextZ = SqAbsoluteHeight(nextX, nextY);
+
+                            User.Statusses.Remove("lay");
+                            User.Statusses.Remove("sit");
+                            User.AddStatus("mv", nextX + "," + nextY + "," + nextZ.ToString().Replace(',', '.'));
+
+                            int newRot = Rotation.Calculate(User.X, User.Y, nextX, nextY);
+
+                            User.RotBody = newRot;
+                            User.RotHead = newRot;
+
+                            User.SetStep = true;
+                            User.SetX = BedMatrix[nextX, nextY].x;
+                            User.SetY = BedMatrix[nextX, nextY].y;
+                            User.SetZ = nextZ;
                         }
                         else
                         {
-                            User.PathRecalcNeeded = false;
-                            User.Path.Clear();
+                            User.IsWalking = false;
                         }
                     }
 
-                    if (User.IsWalking)
+                    User.UpdateNeeded = true;
+                }
+                else
+                {
+                    if (User.Statusses.ContainsKey("mv"))
                     {
-                        if (invalidSetStep || User.PathStep >= User.Path.Count || User.GoalX == User.X && User.Y == User.GoalY)
-                        {
-                            User.Path.Clear();
-                            User.IsWalking = false;
-                            User.RemoveStatus("mv");
-                            User.PathRecalcNeeded = false;
-
-                            if (User.X == Model.DoorX && User.Y == Model.DoorY && !ToRemove.Contains(User.HabboId) && !User.IsBot)
-                            {
-                                ToRemove.Add(User.HabboId);
-                            }
-
-                            UpdateUserStatus(User);
-                        }
-                        else
-                        {
-                            int k = (User.Path.Count - User.PathStep) - 1;
-                            Coord NextStep = User.Path[k];
-                            User.PathStep++;
-
-                            int nextX = NextStep.x;
-                            int nextY = NextStep.y;
-
-                            User.RemoveStatus("mv");
-
-                            bool LastStep = false;
-
-                            if (nextX == User.GoalX && nextY == User.GoalY)
-                            {
-                                LastStep = true;
-                            }
-
-                            if (CanWalk(nextX, nextY, 0, LastStep) || User.AllowOverride)
-                            {
-                                double nextZ = SqAbsoluteHeight(nextX, nextY);
-
-                                User.Statusses.Remove("lay");
-                                User.Statusses.Remove("sit");
-                                User.AddStatus("mv", nextX + "," + nextY + "," + nextZ.ToString().Replace(',','.'));
-
-                                int newRot = Rotation.Calculate(User.X, User.Y, nextX, nextY);
-
-                                User.RotBody = newRot;
-                                User.RotHead = newRot;
-
-                                User.SetStep = true;
-                                User.SetX = BedMatrix[nextX, nextY].x;
-                                User.SetY = BedMatrix[nextX, nextY].y;
-                                User.SetZ = nextZ;
-                            }
-                            else
-                            {
-                                User.IsWalking = false;
-                            }
-                        }
-
+                        User.RemoveStatus("mv");
                         User.UpdateNeeded = true;
                     }
-                    else
-                    {
-                        if (User.Statusses.ContainsKey("mv"))
-                        {
-                            User.RemoveStatus("mv");
-                            User.UpdateNeeded = true;
-                        }
-                    }
-
-                    if (User.IsBot) 
-                    {
-                        User.BotAI.OnTimerTick();
-                    }
-                    else
-                    {
-                        i++; // we do not count bots. we do not take kindly to their kind 'round 'ere.
-                    }
                 }
 
-                foreach (uint toRemove in ToRemove)
+                if (User.IsBot)
                 {
-                    RemoveUserFromRoom(UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(toRemove), true, false);
+                    User.BotAI.OnTimerTick();
                 }
+                else
+                {
+                    i++; // we do not count bots. we do not take kindly to their kind 'round 'ere.
+                }
+            }
+
+            foreach (uint toRemove in ToRemove)
+            {
+                RemoveUserFromRoom(UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(toRemove), true, false);
             }
 
             // Update idle time
@@ -965,7 +925,7 @@ namespace Uber.HabboHotel.Rooms
             }
         }
 
-        
+
 
         #region User handling (General)
         public void AddUserToRoom(GameClient Session, bool Spectator)
@@ -979,7 +939,7 @@ namespace Uber.HabboHotel.Rooms
             else
             {
                 User.SetPos(Model.DoorX, Model.DoorY, Model.DoorZ);
-                User.SetRot(Model.DoorOrientation);                
+                User.SetRot(Model.DoorOrientation);
 
                 if (CheckRights(Session, true))
                 {
@@ -1021,17 +981,14 @@ namespace Uber.HabboHotel.Rooms
             {
                 UpdateUserCount();
 
-                using (TimedLock.Lock(UserList))
+                foreach (RoomUser Usr in UserList)
                 {
-                    foreach (RoomUser Usr in UserList)
+                    if (!Usr.IsBot)
                     {
-                        if (!Usr.IsBot)
-                        {
-                            continue;
-                        }
-
-                        Usr.BotAI.OnUserEnterRoom(User);
+                        continue;
                     }
+
+                    Usr.BotAI.OnUserEnterRoom(User);
                 }
             }
         }
@@ -1053,12 +1010,9 @@ namespace Uber.HabboHotel.Rooms
 
                 RoomUser User = GetRoomUserByHabbo(Session.GetHabbo().Id);
 
-                using (TimedLock.Lock(this.UserList))
+                if (!UserList.Remove(GetRoomUserByHabbo(Session.GetHabbo().Id)))
                 {
-                    if (!UserList.Remove(GetRoomUserByHabbo(Session.GetHabbo().Id)))
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 if (NotifyClient)
@@ -1076,73 +1030,70 @@ namespace Uber.HabboHotel.Rooms
 
                 List<RoomUser> PetsToRemove = new List<RoomUser>();
 
-                using (TimedLock.Lock(this.UserList))
+                if (!User.IsSpectator)
                 {
-                    if (!User.IsSpectator)
+                    if (User != null)
                     {
-                        if (User != null)
-                        {
-                            UserMatrix[User.X, User.Y] = false;
+                        UserMatrix[User.X, User.Y] = false;
 
-                            ServerPacket LeaveMessage = new ServerPacket(29);
-                            LeaveMessage.AppendRawInt32(User.VirtualId);
-                            SendMessage(LeaveMessage);
-                        }
-
-                        if (Session.GetHabbo() != null)
-                        {
-                            if (HasActiveTrade(Session.GetHabbo().Id))
-                            {
-                                TryStopTrade(Session.GetHabbo().Id);
-                            }
-
-                            if (Session.GetHabbo().Username.ToLower() == Owner.ToLower())
-                            {
-                                if (HasOngoingEvent)
-                                {
-                                    Room Room = UberEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
-
-                                    if (Room == null || Room.Event == null)
-                                    {
-                                        return;
-                                    }
-
-                                    Event = null;
-
-                                    ServerPacket Message = new ServerPacket(370);
-                                    Message.AppendStringWithBreak("-1");
-                                    SendMessage(Message);
-                                }
-                            }
-
-                            Session.GetHabbo().OnLeaveRoom();
-                        }
+                        ServerPacket LeaveMessage = new ServerPacket(29);
+                        LeaveMessage.AppendRawInt32(User.VirtualId);
+                        SendMessage(LeaveMessage);
                     }
 
-                    if (!User.IsSpectator)
+                    if (Session.GetHabbo() != null)
                     {
-                        UpdateUserCount();
-
-                        List<RoomUser> Bots = new List<RoomUser>();
-
-                        foreach (RoomUser Usr in UserList)
+                        if (HasActiveTrade(Session.GetHabbo().Id))
                         {
-                            if (!Usr.IsBot)
-                            {
-                                continue;
-                            }
-
-                            Bots.Add(Usr);
+                            TryStopTrade(Session.GetHabbo().Id);
                         }
 
-                        foreach (RoomUser Bot in Bots)
+                        if (Session.GetHabbo().Username.ToLower() == Owner.ToLower())
                         {
-                            Bot.BotAI.OnUserLeaveRoom(Session);
-
-                            if (Bot.IsPet && Bot.PetData.OwnerId == Session.GetHabbo().Id && !CheckRights(Session, true))
+                            if (HasOngoingEvent)
                             {
-                                PetsToRemove.Add(Bot);
+                                Room Room = UberEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
+                                if (Room == null || Room.Event == null)
+                                {
+                                    return;
+                                }
+
+                                Event = null;
+
+                                ServerPacket Message = new ServerPacket(370);
+                                Message.AppendStringWithBreak("-1");
+                                SendMessage(Message);
                             }
+                        }
+
+                        Session.GetHabbo().OnLeaveRoom();
+                    }
+                }
+
+                if (!User.IsSpectator)
+                {
+                    UpdateUserCount();
+
+                    List<RoomUser> Bots = new List<RoomUser>();
+
+                    foreach (RoomUser Usr in UserList)
+                    {
+                        if (!Usr.IsBot)
+                        {
+                            continue;
+                        }
+
+                        Bots.Add(Usr);
+                    }
+
+                    foreach (RoomUser Bot in Bots)
+                    {
+                        Bot.BotAI.OnUserLeaveRoom(Session);
+
+                        if (Bot.IsPet && Bot.PetData.OwnerId == Session.GetHabbo().Id && !CheckRights(Session, true))
+                        {
+                            PetsToRemove.Add(Bot);
                         }
                     }
                 }
@@ -1158,21 +1109,17 @@ namespace Uber.HabboHotel.Rooms
 
         public RoomUser GetPet(uint PetId)
         {
-            using (TimedLock.Lock(this.UserList))
+            List<RoomUser>.Enumerator Users = this.UserList.GetEnumerator();
+
+            while (Users.MoveNext())
             {
-                List<RoomUser>.Enumerator Users = this.UserList.GetEnumerator();
+                RoomUser User = Users.Current;
 
-                while (Users.MoveNext())
+                if (User.IsBot && User.IsPet && User.PetData != null && User.PetData.PetId == PetId)
                 {
-                    RoomUser User = Users.Current;
-
-                    if (User.IsBot && User.IsPet && User.PetData != null && User.PetData.PetId == PetId)
-                    {
-                        return User;
-                    }
+                    return User;
                 }
             }
-
             return null;
         }
 
@@ -1193,59 +1140,47 @@ namespace Uber.HabboHotel.Rooms
 
         public RoomUser GetRoomUserByVirtualId(int VirtualId)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (User.VirtualId == VirtualId)
                 {
-                    if (User.VirtualId == VirtualId)
-                    {
-                        return User;
-                    }
+                    return User;
                 }
             }
-
             return null;
         }
 
         public RoomUser GetRoomUserByHabbo(uint Id)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (User.IsBot)
                 {
-                    if (User.IsBot)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (User.HabboId == Id)
-                    {
-                        return User;
-                    }
+                if (User.HabboId == Id)
+                {
+                    return User;
                 }
             }
-
             return null;
         }
 
         public RoomUser GetRoomUserByHabbo(string Name)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (User.IsBot || User.GetClient().GetHabbo() == null)
                 {
-                    if (User.IsBot || User.GetClient().GetHabbo() == null)
-                    {
-                        continue;
-                    }
-                    
-                    if (User.GetClient().GetHabbo().Username.ToLower() == Name.ToLower())
-                    {
-                        return User;
-                    }
+                    continue;
+                }
+
+                if (User.GetClient().GetHabbo().Username.ToLower() == Name.ToLower())
+                {
+                    return User;
                 }
             }
-
             return null;
         }
         #endregion
@@ -1255,17 +1190,14 @@ namespace Uber.HabboHotel.Rooms
         {
             try
             {
-                using (TimedLock.Lock(this.UserList))
+                foreach (RoomUser User in this.UserList)
                 {
-                    foreach (RoomUser User in this.UserList)
+                    if (User.IsBot || User.GetClient() == null)
                     {
-                        if (User.IsBot || User.GetClient() == null)
-                        {
-                            continue;
-                        }
-
-                        User.GetClient().SendPacket(Message);
+                        continue;
                     }
+
+                    User.GetClient().SendPacket(Message);
                 }
             }
             catch (InvalidOperationException) { }
@@ -1273,22 +1205,19 @@ namespace Uber.HabboHotel.Rooms
 
         public void SendMessageToUsersWithRights(ServerPacket Message)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (User.IsBot)
                 {
-                    if (User.IsBot)
-                    {
-                        continue;
-                    }
-
-                    if (!CheckRights(User.GetClient()))
-                    {
-                        continue;
-                    }
-
-                    User.GetClient().SendPacket(Message);
+                    continue;
                 }
+
+                if (!CheckRights(User.GetClient()))
+                {
+                    continue;
+                }
+
+                User.GetClient().SendPacket(Message);
             }
         }
         #endregion
@@ -1315,22 +1244,19 @@ namespace Uber.HabboHotel.Rooms
         {
             List<RoomUser> Users = new List<RoomUser>();
 
-           using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (!All)
                 {
-                    if (!All)
+                    if (!User.UpdateNeeded)
                     {
-                        if (!User.UpdateNeeded)
-                        {
-                            continue;
-                        }
-
-                        User.UpdateNeeded = false;
+                        continue;
                     }
 
-                    Users.Add(User);
+                    User.UpdateNeeded = false;
                 }
+
+                Users.Add(User);
             }
 
             if (Users.Count == 0)
@@ -1387,17 +1313,13 @@ namespace Uber.HabboHotel.Rooms
         {
             int i = 0;
 
-            using (TimedLock.Lock(Items))
+            foreach (RoomItem Item in Items)
             {
-                foreach (RoomItem Item in Items)
+                if (Item.GetBaseItem().InteractionType.ToLower() == InteractionType.ToLower())
                 {
-                    if (Item.GetBaseItem().InteractionType.ToLower() == InteractionType.ToLower())
-                    {
-                        i++;
-                    }
+                    i++;
                 }
             }
-
             return i;
         }
 
@@ -1414,17 +1336,13 @@ namespace Uber.HabboHotel.Rooms
 
         public bool HasActiveTrade(uint UserId)
         {
-            using (TimedLock.Lock(ActiveTrades))
+            foreach (Trade Trade in ActiveTrades)
             {
-                foreach (Trade Trade in ActiveTrades)
+                if (Trade.ContainsUser(UserId))
                 {
-                    if (Trade.ContainsUser(UserId))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
-
             return false;
         }
 
@@ -1440,17 +1358,13 @@ namespace Uber.HabboHotel.Rooms
 
         public Trade GetUserTrade(uint UserId)
         {
-            using (TimedLock.Lock(ActiveTrades))
+            foreach (Trade Trade in ActiveTrades)
             {
-                foreach (Trade Trade in ActiveTrades)
+                if (Trade.ContainsUser(UserId))
                 {
-                    if (Trade.ContainsUser(UserId))
-                    {
-                        return Trade;
-                    }
+                    return Trade;
                 }
             }
-
             return null;
         }
 
@@ -1677,20 +1591,17 @@ namespace Uber.HabboHotel.Rooms
 
         public void UpdateUserStatusses()
         {
-            using (TimedLock.Lock(this.UserList))
-            {
-                List<RoomUser>.Enumerator Users = UserList.GetEnumerator();
+            List<RoomUser>.Enumerator Users = UserList.GetEnumerator();
 
-                while (Users.MoveNext())
-                {
-                    UpdateUserStatus(Users.Current);
-                }
+            while (Users.MoveNext())
+            {
+                UpdateUserStatus(Users.Current);
             }
         }
 
         public double SqAbsoluteHeight(int X, int Y)
         {
-            List <RoomItem> ItemsOnSquare = GetFurniObjects(X, Y);
+            List<RoomItem> ItemsOnSquare = GetFurniObjects(X, Y);
             double HighestStack = 0;
 
             bool deduct = false;
@@ -1989,14 +1900,14 @@ namespace Uber.HabboHotel.Rooms
                 nexty = ItemNow.Y;
             }
 
-             UserNow.MoveTo(nextx, nexty);
+            UserNow.MoveTo(nextx, nexty);
             /*
             ServerMessage Message = new ServerMessage(230);
             Message.AppendString("QAPAQAKHs_[@@BJH0.450.0");
             SendMessage(Message);
             UserNow.UpdateNeeded = false;
              */
-            
+
         }
 
         public void BallProcess(RoomItem ItemNow, RoomUser UserNow)
@@ -2060,17 +1971,14 @@ namespace Uber.HabboHotel.Rooms
 
         public void TurnHeads(int X, int Y, uint SenderId)
         {
-            using (TimedLock.Lock(UserList))
+            foreach (RoomUser User in UserList)
             {
-                foreach (RoomUser User in UserList)
+                if (User.HabboId == SenderId)
                 {
-                    if (User.HabboId == SenderId)
-                    {
-                        continue;
-                    }
-
-                    User.SetRot(Rotation.Calculate(User.X, User.Y, X, Y), true);
+                    continue;
                 }
+
+                User.SetRot(Rotation.Calculate(User.X, User.Y, X, Y), true);
             }
         }
 
@@ -2106,17 +2014,13 @@ namespace Uber.HabboHotel.Rooms
 
         public RoomItem FindItem(uint Id)
         {
-            using (TimedLock.Lock(Items))
+            foreach (RoomItem Item in Items)
             {
-                foreach (RoomItem Item in Items)
+                if (Item.Id == Id)
                 {
-                    if (Item.Id == Id)
-                    {
-                        return Item;
-                    }
+                    return Item;
                 }
             }
-
             return null;
         }
 

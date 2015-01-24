@@ -143,7 +143,7 @@ namespace Uber.HabboHotel.Rooms
             this.Landscape = (string)Row["landscape"];
             this.Event = null;
 
-            Dictionary<int, int> IconItems = new Dictionary<int,int>();
+            Dictionary<int, int> IconItems = new Dictionary<int, int>();
 
             if (Row["icon_items"].ToString() != "")
             {
@@ -211,12 +211,9 @@ namespace Uber.HabboHotel.Rooms
                 Message.AppendStringWithBreak("");
                 Message.AppendInt32(TagCount);
 
-                using (TimedLock.Lock(Tags))
+                foreach (string Tag in Tags)
                 {
-                    foreach (string Tag in Tags)
-                    {
-                        Message.AppendStringWithBreak(Tag);
-                    }
+                    Message.AppendStringWithBreak(Tag);
                 }
             }
             else
@@ -235,12 +232,9 @@ namespace Uber.HabboHotel.Rooms
                 Message.AppendStringWithBreak(Event.StartTime);
                 Message.AppendInt32(Event.Tags.Count);
 
-                using (TimedLock.Lock(Event.Tags))
+                foreach (string Tag in Event.Tags)
                 {
-                    foreach (string Tag in Event.Tags)
-                    {
-                        Message.AppendStringWithBreak(Tag);
-                    }
+                    Message.AppendStringWithBreak(Tag);
                 }
             }
 

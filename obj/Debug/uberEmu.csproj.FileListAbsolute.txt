@@ -56,3 +56,11 @@ C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\config.conf
 C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\uberEmu.exe
 C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\uberEmu.pdb
 C:\Users\Mikkel\Desktop\uberEmu stabilized\bin\Debug\MySql.Data.dll
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\bin\Debug\uberEmu.exe.config
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\obj\Debug\uberEmu.exe
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\obj\Debug\uberEmu.csprojResolveAssemblyReference.cache
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\bin\Debug\config.conf
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\bin\Debug\uberEmu.exe
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\bin\Debug\uberEmu.pdb
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\bin\Debug\MySql.Data.dll
+C:\Users\Mikkel\Desktop\uberEmu-stabilized\obj\Debug\uberEmu.pdb

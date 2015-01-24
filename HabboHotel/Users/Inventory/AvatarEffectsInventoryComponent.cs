@@ -165,24 +165,21 @@ namespace Uber.HabboHotel.Users.Inventory
                 return true;
             }
 
-            using (TimedLock.Lock(Effects))
+            foreach (AvatarEffect Effect in Effects)
             {
-                foreach (AvatarEffect Effect in Effects)
+                if (IfEnabledOnly && !Effect.Activated)
                 {
-                    if (IfEnabledOnly && !Effect.Activated)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (Effect.HasExpired)
-                    {
-                        continue;
-                    }
+                if (Effect.HasExpired)
+                {
+                    continue;
+                }
 
-                    if (Effect.EffectId == EffectId)
-                    {
-                        return true;
-                    }
+                if (Effect.EffectId == EffectId)
+                {
+                    return true;
                 }
             }
 
@@ -191,19 +188,16 @@ namespace Uber.HabboHotel.Users.Inventory
 
         public AvatarEffect GetEffect(int EffectId, bool IfEnabledOnly)
         {
-            using (TimedLock.Lock(Effects))
+            foreach (AvatarEffect Effect in Effects)
             {
-                foreach (AvatarEffect Effect in Effects)
+                if (IfEnabledOnly && !Effect.Activated)
                 {
-                    if (IfEnabledOnly && !Effect.Activated)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (Effect.EffectId == EffectId)
-                    {
-                        return Effect;
-                    }
+                if (Effect.EffectId == EffectId)
+                {
+                    return Effect;
                 }
             }
 
@@ -215,15 +209,12 @@ namespace Uber.HabboHotel.Users.Inventory
             ServerPacket Message = new ServerPacket(460);
             Message.AppendInt32(Count);
 
-            using (TimedLock.Lock(Effects))
+            foreach (AvatarEffect Effect in Effects)
             {
-                foreach (AvatarEffect Effect in Effects)
-                {
-                    Message.AppendInt32(Effect.EffectId);
-                    Message.AppendInt32(Effect.TotalDuration);
-                    Message.AppendBoolean(!Effect.Activated);
-                    Message.AppendInt32(Effect.TimeLeft);
-                }
+                Message.AppendInt32(Effect.EffectId);
+                Message.AppendInt32(Effect.TotalDuration);
+                Message.AppendBoolean(!Effect.Activated);
+                Message.AppendInt32(Effect.TimeLeft);
             }
 
             return Message;
@@ -231,22 +222,19 @@ namespace Uber.HabboHotel.Users.Inventory
 
         public void CheckExpired()
         {
-            using (TimedLock.Lock(Effects))
+            List<int> ToRemove = new List<int>();
+
+            foreach (AvatarEffect Effect in Effects)
             {
-                List<int> ToRemove = new List<int>();
-
-                foreach (AvatarEffect Effect in Effects)
+                if (Effect.HasExpired)
                 {
-                    if (Effect.HasExpired)
-                    {
-                        ToRemove.Add(Effect.EffectId);
-                    }
+                    ToRemove.Add(Effect.EffectId);
                 }
+            }
 
-                foreach (int trmv in ToRemove)
-                {
-                    StopEffect(trmv);
-                }
+            foreach (int trmv in ToRemove)
+            {
+                StopEffect(trmv);
             }
         }
 

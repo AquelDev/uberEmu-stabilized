@@ -327,32 +327,21 @@ namespace Uber.Messages
             {
                 return;
             }
-
-            using (TimedLock.Lock(Room.UserList))
+            foreach (var _user in Room.UserList)
             {
-                List<RoomUser>.Enumerator Users = Room.UserList.GetEnumerator();
-
-                while (Users.MoveNext())
+                if (_user.IsBot && _user.BotData.AiType == "guide")
                 {
-                    RoomUser User = Users.Current;
-
-                    if (User.IsBot && User.BotData.AiType == "guide")
-                    {
-                        Session.GetMessageHandler().GetResponse().Init(33);
-                        Session.GetMessageHandler().GetResponse().AppendInt32(4009);
-                        Session.GetMessageHandler().SendResponse();
-
-                        return;
-                    }
+                    ServerPacket packet = new ServerPacket(33);
+                    packet.AppendInt32(4009);
+                    Session.SendPacket(packet);
                 }
             }
 
             if (Session.GetHabbo().CalledGuideBot)
             {
-                Session.GetMessageHandler().GetResponse().Init(33);
-                Session.GetMessageHandler().GetResponse().AppendInt32(4010);
-                Session.GetMessageHandler().SendResponse();
-
+                ServerPacket packet = new ServerPacket(33);
+                packet.AppendInt32(4010);
+                Session.SendPacket(packet);
                 return;
             }
 
@@ -397,7 +386,6 @@ namespace Uber.Messages
             RequestHandlers[462] = new RequestHandler(ModMessageMessageEvent);
             RequestHandlers[463] = new RequestHandler(ModKickMessageEvent);
             RequestHandlers[464] = new RequestHandler(ModBanMessageEvent);
-
         }
     }
 }

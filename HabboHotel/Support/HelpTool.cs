@@ -103,7 +103,7 @@ namespace Uber.HabboHotel.Support
                 return Topics[TopicId];
             }
 
-            return null;            
+            return null;
         }
 
         public void ClearTopics()
@@ -117,18 +117,13 @@ namespace Uber.HabboHotel.Support
         public int ArticlesInCategory(uint CategoryId)
         {
             int i = 0;
-
-            using (TimedLock.Lock(Topics))
+            foreach (HelpTopic Topic in Topics.Values)
             {
-                foreach (HelpTopic Topic in Topics.Values)
+                if (Topic.CategoryId == CategoryId)
                 {
-                    if (Topic.CategoryId == CategoryId)
-                    {
-                        i++;
-                    }
+                    i++;
                 }
             }
-
             return i;
         }
 
@@ -136,27 +131,17 @@ namespace Uber.HabboHotel.Support
         {
             ServerPacket Frontpage = new ServerPacket(518);
             Frontpage.AppendInt32(ImportantTopics.Count);
-
-            using (TimedLock.Lock(ImportantTopics))
+            foreach (HelpTopic Topic in ImportantTopics)
             {
-                foreach (HelpTopic Topic in ImportantTopics)
-                {
-                    Frontpage.AppendUInt(Topic.TopicId);
-                    Frontpage.AppendStringWithBreak(Topic.Caption);
-                }
+                Frontpage.AppendUInt(Topic.TopicId);
+                Frontpage.AppendStringWithBreak(Topic.Caption);
             }
-
             Frontpage.AppendInt32(KnownIssues.Count);
-
-            using (TimedLock.Lock(KnownIssues))
+            foreach (HelpTopic Topic in KnownIssues)
             {
-                foreach (HelpTopic Topic in KnownIssues)
-                {
-                    Frontpage.AppendUInt(Topic.TopicId);
-                    Frontpage.AppendStringWithBreak(Topic.Caption);
-                }
+                Frontpage.AppendUInt(Topic.TopicId);
+                Frontpage.AppendStringWithBreak(Topic.Caption);
             }
-
             return Frontpage;
         }
 
@@ -164,17 +149,12 @@ namespace Uber.HabboHotel.Support
         {
             ServerPacket Index = new ServerPacket(519);
             Index.AppendInt32(Categories.Count);
-
-            using (TimedLock.Lock(Categories))
+            foreach (HelpCategory Category in Categories.Values)
             {
-                foreach (HelpCategory Category in Categories.Values)
-                {
-                    Index.AppendUInt(Category.CategoryId);
-                    Index.AppendStringWithBreak(Category.Caption);
-                    Index.AppendInt32(ArticlesInCategory(Category.CategoryId));
-                }
+                Index.AppendUInt(Category.CategoryId);
+                Index.AppendStringWithBreak(Category.Caption);
+                Index.AppendInt32(ArticlesInCategory(Category.CategoryId));
             }
-
             return Index;
         }
 
@@ -195,25 +175,18 @@ namespace Uber.HabboHotel.Support
                 dbClient.AddParamWithValue("query", Query);
                 Results = dbClient.ReadDataTable("SELECT id,title FROM help_topics WHERE title LIKE @query OR body LIKE @query LIMIT 25");
             }
-
-            // HII[KBCan I pay to be unbanned?
-
             ServerPacket Search = new ServerPacket(521);
-
             if (Results == null)
             {
                 Search.AppendBoolean(false);
                 return Search;
             }
-
             Search.AppendInt32(Results.Rows.Count);
-
             foreach (DataRow Row in Results.Rows)
             {
                 Search.AppendUInt((uint)Row["id"]);
                 Search.AppendStringWithBreak((string)Row["title"]);
             }
-
             return Search;
         }
 
@@ -224,18 +197,14 @@ namespace Uber.HabboHotel.Support
             Cat.AppendStringWithBreak("");
             Cat.AppendInt32(ArticlesInCategory(Category.CategoryId));
 
-            using (TimedLock.Lock(Topics))
+            foreach (HelpTopic Topic in Topics.Values)
             {
-                foreach (HelpTopic Topic in Topics.Values)
+                if (Topic.CategoryId == Category.CategoryId)
                 {
-                    if (Topic.CategoryId == Category.CategoryId)
-                    {
-                        Cat.AppendUInt(Topic.TopicId);
-                        Cat.AppendStringWithBreak(Topic.Caption);
-                    }
+                    Cat.AppendUInt(Topic.TopicId);
+                    Cat.AppendStringWithBreak(Topic.Caption);
                 }
             }
-
             return Cat;
         }
     }

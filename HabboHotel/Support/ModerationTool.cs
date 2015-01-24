@@ -276,33 +276,26 @@ namespace Uber.HabboHotel.Support
 
         public void SendOpenTickets(GameClient Session)
         {
-            using (TimedLock.Lock(Tickets))
+            foreach (SupportTicket Ticket in Tickets)
             {
-                foreach (SupportTicket Ticket in Tickets)
+                if (Ticket.Status != TicketStatus.OPEN && Ticket.Status != TicketStatus.PICKED)
                 {
-                    if (Ticket.Status != TicketStatus.OPEN && Ticket.Status != TicketStatus.PICKED)
-                    {
-                        continue;
-                    }
-
-                    Session.SendPacket(Ticket.Serialize());
+                    continue;
                 }
+
+                Session.SendPacket(Ticket.Serialize());
             }
         }
 
         public SupportTicket GetTicket(uint TicketId)
         {
-            using (TimedLock.Lock(Tickets))
+            foreach (SupportTicket Ticket in Tickets)
             {
-                foreach (SupportTicket Ticket in Tickets)
+                if (Ticket.TicketId == TicketId)
                 {
-                    if (Ticket.TicketId == TicketId)
-                    {
-                        return Ticket;
-                    }
+                    return Ticket;
                 }
             }
-
             return null;
         }
 
@@ -387,32 +380,25 @@ namespace Uber.HabboHotel.Support
 
         public Boolean UsersHasPendingTicket(uint Id)
         {
-            using (TimedLock.Lock(Tickets))
+            foreach (SupportTicket Ticket in Tickets)
             {
-                foreach (SupportTicket Ticket in Tickets)
+                if (Ticket.SenderId == Id && Ticket.Status == TicketStatus.OPEN)
                 {
-                    if (Ticket.SenderId == Id && Ticket.Status == TicketStatus.OPEN)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
-
             return false;
         }
 
         public void DeletePendingTicketForUser(uint Id)
         {
-            using (TimedLock.Lock(Tickets))
+            foreach (SupportTicket Ticket in Tickets)
             {
-                foreach (SupportTicket Ticket in Tickets)
+                if (Ticket.SenderId == Id)
                 {
-                    if (Ticket.SenderId == Id)
-                    {
-                        Ticket.Delete(true);
-                        SendTicketToModerators(Ticket);
-                        return;
-                    }
+                    Ticket.Delete(true);
+                    SendTicketToModerators(Ticket);
+                    return;
                 }
             }
         }
@@ -459,24 +445,21 @@ namespace Uber.HabboHotel.Support
 
             if (KickUsers)
             {
-               using (TimedLock.Lock(Room.UserList))
+                List<RoomUser> ToRemove = new List<RoomUser>();
+
+                foreach (RoomUser User in Room.UserList)
                 {
-                    List<RoomUser> ToRemove = new List<RoomUser>();
-
-                    foreach (RoomUser User in Room.UserList)
+                    if (User.IsBot || User.GetClient().GetHabbo().Rank >= ModSession.GetHabbo().Rank)
                     {
-                        if (User.IsBot || User.GetClient().GetHabbo().Rank >= ModSession.GetHabbo().Rank)
-                        {
-                            continue;
-                        }
-
-                        ToRemove.Add(User);
+                        continue;
                     }
 
-                    for (int i = 0; i < ToRemove.Count; i++)
-                    {
-                        Room.RemoveUserFromRoom(ToRemove[i].GetClient(), true, false);
-                    }
+                    ToRemove.Add(User);
+                }
+
+                for (int i = 0; i < ToRemove.Count; i++)
+                {
+                    Room.RemoveUserFromRoom(ToRemove[i].GetClient(), true, false);
                 }
             }
         }
@@ -493,25 +476,22 @@ namespace Uber.HabboHotel.Support
             StringBuilder QueryBuilder = new StringBuilder();
             int j = 0;
 
-            using (TimedLock.Lock(Room.UserList))
+            foreach (RoomUser User in Room.UserList)
             {
-                foreach (RoomUser User in Room.UserList)
+                if (User.IsBot)
                 {
-                    if (User.IsBot)
-                    {
-                        continue;
-                    }
-
-                    User.GetClient().SendNotif(Message, Caution);
-
-                    if (j > 0)
-                    {
-                        QueryBuilder.Append(" OR ");
-                    }
-
-                    QueryBuilder.Append("user_id = '" + User.GetClient().GetHabbo().Id + "'");
-                    j++;
+                    continue;
                 }
+
+                User.GetClient().SendNotif(Message, Caution);
+
+                if (j > 0)
+                {
+                    QueryBuilder.Append(" OR ");
+                }
+
+                QueryBuilder.Append("user_id = '" + User.GetClient().GetHabbo().Id + "'");
+                j++;
             }
 
             if (Caution)
@@ -573,12 +553,9 @@ namespace Uber.HabboHotel.Support
                     Message.AppendStringWithBreak(Room.Event.Description);
                     Message.AppendInt32(Room.Event.Tags.Count);
 
-                    using (TimedLock.Lock(Room.Event.Tags))
+                    foreach (string Tag in Room.Event.Tags)
                     {
-                        foreach (string Tag in Room.Event.Tags)
-                        {
-                            Message.AppendStringWithBreak(Tag);
-                        }
+                        Message.AppendStringWithBreak(Tag);
                     }
                 }
             }

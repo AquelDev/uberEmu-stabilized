@@ -202,17 +202,14 @@ namespace Uber.Messages
 
             List<RoomUser> UsersToDisplay = new List<RoomUser>();
 
-            using (TimedLock.Lock(Room.UserList))
+            foreach (RoomUser User in Room.UserList)
             {
-                foreach (RoomUser User in Room.UserList)
+                if (User.IsSpectator)
                 {
-                    if (User.IsSpectator)
-                    {
-                        continue;
-                    }
-
-                    UsersToDisplay.Add(User);
+                    continue;
                 }
+
+                UsersToDisplay.Add(User);
             }
 
             GetResponse().Init(28);
@@ -291,48 +288,45 @@ namespace Uber.Messages
                 Session.SendPacket(Updates);
             }
 
-            using (TimedLock.Lock(Room.UserList))
+            foreach (RoomUser User in Room.UserList)
             {
-                foreach (RoomUser User in Room.UserList)
+                if (User.IsSpectator)
                 {
-                    if (User.IsSpectator)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (User.IsDancing)
+                if (User.IsDancing)
+                {
+                    GetResponse().Init(480);
+                    GetResponse().AppendInt32(User.VirtualId);
+                    GetResponse().AppendInt32(User.DanceId);
+                    SendResponse();
+                }
+
+                if (User.IsAsleep)
+                {
+                    GetResponse().Init(486);
+                    GetResponse().AppendInt32(User.VirtualId);
+                    GetResponse().AppendBoolean(true);
+                    SendResponse();
+                }
+
+                if (User.CarryItemID > 0 && User.CarryTimer > 0)
+                {
+                    GetResponse().Init(482);
+                    GetResponse().AppendInt32(User.VirtualId);
+                    GetResponse().AppendInt32(User.CarryTimer);
+                    SendResponse();
+                }
+
+                if (!User.IsBot)
+                {
+                    if (User.GetClient().GetHabbo() != null && User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent() != null && User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().CurrentEffect >= 1)
                     {
-                        GetResponse().Init(480);
+                        GetResponse().Init(485);
                         GetResponse().AppendInt32(User.VirtualId);
-                        GetResponse().AppendInt32(User.DanceId);
+                        GetResponse().AppendInt32(User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().CurrentEffect);
                         SendResponse();
-                    }
-
-                    if (User.IsAsleep)
-                    {
-                        GetResponse().Init(486);
-                        GetResponse().AppendInt32(User.VirtualId);
-                        GetResponse().AppendBoolean(true);
-                        SendResponse();
-                    }
-
-                    if (User.CarryItemID > 0 && User.CarryTimer > 0)
-                    {
-                        GetResponse().Init(482);
-                        GetResponse().AppendInt32(User.VirtualId);
-                        GetResponse().AppendInt32(User.CarryTimer);
-                        SendResponse();
-                    }
-
-                    if (!User.IsBot)
-                    {
-                        if (User.GetClient().GetHabbo() != null && User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent() != null && User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().CurrentEffect >= 1)
-                        {
-                            GetResponse().Init(485);
-                            GetResponse().AppendInt32(User.VirtualId);
-                            GetResponse().AppendInt32(User.GetClient().GetHabbo().GetAvatarEffectsInventoryComponent().CurrentEffect);
-                            SendResponse();
-                        }
                     }
                 }
             }
@@ -379,7 +373,6 @@ namespace Uber.Messages
                 }
                 else
                 {
-                    // C`PA
                     GetResponse().Init(224);
                     GetResponse().AppendInt32(4);
                     SendResponse();
@@ -447,7 +440,7 @@ namespace Uber.Messages
                             Room.SendMessageToUsersWithRights(RingMessage);
                         }
 
-                        return; 
+                        return;
                     }
                     else if (Room.State == 2)
                     {
@@ -1247,18 +1240,15 @@ namespace Uber.Messages
 
             if (Room != null)
             {
-                using (TimedLock.Lock(Room.UserList))
+                foreach (RoomUser User in Room.UserList)
                 {
-                    foreach (RoomUser User in Room.UserList)
+                    if (User.IsBot)
                     {
-                        if (User.IsBot)
-                        {
-                            continue;
-                        }
-
-                        User.GetClient().SendPacket(new ServerPacket(18));
-                        User.GetClient().GetHabbo().OnLeaveRoom();
+                        continue;
                     }
+
+                    User.GetClient().SendPacket(new ServerPacket(18));
+                    User.GetClient().GetHabbo().OnLeaveRoom();
                 }
 
                 UberEnvironment.GetGame().GetRoomManager().UnloadRoom(Data.Id);
@@ -1528,12 +1518,9 @@ namespace Uber.Messages
             GetResponse().AppendUInt(User.GetClient().GetHabbo().Id);
             GetResponse().AppendInt32(User.GetClient().GetHabbo().Tags.Count);
 
-            using (TimedLock.Lock(User.GetClient().GetHabbo().Tags))
+            foreach (string Tag in User.GetClient().GetHabbo().Tags)
             {
-                foreach (string Tag in User.GetClient().GetHabbo().Tags)
-                {
-                    GetResponse().AppendStringWithBreak(Tag);
-                }
+                GetResponse().AppendStringWithBreak(Tag);
             }
 
             SendResponse();
@@ -1554,25 +1541,19 @@ namespace Uber.Messages
             {
                 return;
             }
-
-            // CdjUzYZJIACH_RespectEarned1JACH_EmailVerification1E^jUzYZH
-
             GetResponse().Init(228);
             GetResponse().AppendUInt(User.GetClient().GetHabbo().Id);
             GetResponse().AppendInt32(User.GetClient().GetHabbo().GetBadgeComponent().EquippedCount);
 
-                using (TimedLock.Lock(User.GetClient().GetHabbo().GetBadgeComponent().BadgeList))
+            foreach (Badge Badge in User.GetClient().GetHabbo().GetBadgeComponent().BadgeList)
             {
-                foreach (Badge Badge in User.GetClient().GetHabbo().GetBadgeComponent().BadgeList)
+                if (Badge.Slot <= 0)
                 {
-                    if (Badge.Slot <= 0)
-                    {
-                        continue;
-                    }
-
-                    GetResponse().AppendInt32(Badge.Slot);
-                    GetResponse().AppendStringWithBreak(Badge.Code);
+                    continue;
                 }
+
+                GetResponse().AppendInt32(Badge.Slot);
+                GetResponse().AppendStringWithBreak(Badge.Code);
             }
 
             SendResponse();
@@ -2081,19 +2062,16 @@ namespace Uber.Messages
             GetResponse().AppendInt32(Room.MoodlightData.Presets.Count);
             GetResponse().AppendInt32(Room.MoodlightData.CurrentPreset);
 
-                using (TimedLock.Lock(Room.MoodlightData.Presets))
+            int i = 0;
+
+            foreach (MoodlightPreset Preset in Room.MoodlightData.Presets)
             {
-                int i = 0;
+                i++;
 
-                foreach (MoodlightPreset Preset in Room.MoodlightData.Presets)
-                {
-                    i++;
-
-                    GetResponse().AppendInt32(i);
-                    GetResponse().AppendInt32(int.Parse(UberEnvironment.BoolToEnum(Preset.BackgroundOnly)) + 1);
-                    GetResponse().AppendStringWithBreak(Preset.ColorCode);
-                    GetResponse().AppendInt32(Preset.ColorIntensity);
-                }
+                GetResponse().AppendInt32(i);
+                GetResponse().AppendInt32(int.Parse(UberEnvironment.BoolToEnum(Preset.BackgroundOnly)) + 1);
+                GetResponse().AppendStringWithBreak(Preset.ColorCode);
+                GetResponse().AppendInt32(Preset.ColorIntensity);
             }
 
             SendResponse();
@@ -2110,15 +2088,12 @@ namespace Uber.Messages
 
             RoomItem Item = null;
 
-            using (TimedLock.Lock(Room.Items))
+            foreach (RoomItem I in Room.Items)
             {
-                foreach (RoomItem I in Room.Items)
+                if (I.GetBaseItem().InteractionType.ToLower() == "dimmer")
                 {
-                    if (I.GetBaseItem().InteractionType.ToLower() == "dimmer")
-                    {
-                        Item = I;
-                        break;
-                    }
+                    Item = I;
+                    break;
                 }
             }
 
@@ -2126,8 +2101,6 @@ namespace Uber.Messages
             {
                 return;
             }
-
-            // EVIH@G#EA4532RbI
 
             int Preset = Request.PopWiredInt32();
             int BackgroundMode = Request.PopWiredInt32();
@@ -2159,15 +2132,12 @@ namespace Uber.Messages
             }
 
             RoomItem Item = null;
-            using (TimedLock.Lock(Room.Items))
+            foreach (RoomItem I in Room.Items)
             {
-                foreach (RoomItem I in Room.Items)
+                if (I.GetBaseItem().InteractionType.ToLower() == "dimmer")
                 {
-                    if (I.GetBaseItem().InteractionType.ToLower() == "dimmer")
-                    {
-                        Item = I;
-                        break;
-                    }
+                    Item = I;
+                    break;
                 }
             }
 
@@ -2323,7 +2293,7 @@ namespace Uber.Messages
             }
 
             RoomUser User = Room.GetRoomUserByHabbo(Request.PopWiredUInt());
-            
+
             if (User == null || User.GetClient().GetHabbo().Id == Session.GetHabbo().Id || User.IsBot)
             {
                 return;
@@ -2420,7 +2390,7 @@ namespace Uber.Messages
             {
                 return;
             }
-            
+
             string[] Split = Exchange.GetBaseItem().Name.Split('_');
             int Value = int.Parse(Split[1]);
 
@@ -2470,7 +2440,7 @@ namespace Uber.Messages
             if (Room == null || (!Room.AllowPets && !Room.CheckRights(Session, true)))
             {
                 return;
-            }            
+            }
 
             uint PetId = Request.PopWiredUInt();
 
@@ -2592,7 +2562,7 @@ namespace Uber.Messages
         }
 
         public void RegisterRooms()
-        { 
+        {
             RequestHandlers[391] = new RequestHandler(OpenFlatConnectionMessageEvent);
             RequestHandlers[182] = new RequestHandler(GetInterstitialMessageEvent);
             RequestHandlers[388] = new RequestHandler(GetPublicSpaceCastLibsMessageEvent);

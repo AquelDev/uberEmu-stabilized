@@ -215,10 +215,7 @@ namespace Uber.HabboHotel.Misc
                         {
                             List<RoomItem> ToRemove = new List<RoomItem>();
 
-                            using (TimedLock.Lock(TargetRoom.Items))
-                            {
-                                ToRemove.AddRange(TargetRoom.Items);
-                            }
+                            ToRemove.AddRange(TargetRoom.Items);
 
                             foreach (RoomItem Item in ToRemove)
                             {

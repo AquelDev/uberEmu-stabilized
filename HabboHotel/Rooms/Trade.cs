@@ -64,14 +64,11 @@ namespace Uber.HabboHotel.Rooms
 
         public bool ContainsUser(uint Id)
         {
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
+                if (User.UserId == Id)
                 {
-                    if (User.UserId == Id)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -80,14 +77,11 @@ namespace Uber.HabboHotel.Rooms
 
         public TradeUser GetTradeUser(uint Id)
         {
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
+                if (User.UserId == Id)
                 {
-                    if (User.UserId == Id)
-                    {
-                        return User;
-                    }
+                    return User;
                 }
             }
 
@@ -191,50 +185,38 @@ namespace Uber.HabboHotel.Rooms
 
         public void ClearAccepted()
         {
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
-                {
-                    User.HasAccepted = false;
-                }
+                User.HasAccepted = false;
             }
         }
 
         public void UpdateTradeWindow()
         {
             ServerPacket Message = new ServerPacket(108);
-
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
+                Message.AppendUInt(User.UserId);
+                Message.AppendInt32(User.OfferedItems.Count);
+
+                foreach (UserItem Item in User.OfferedItems)
                 {
-                    Message.AppendUInt(User.UserId);
-                    Message.AppendInt32(User.OfferedItems.Count);
-
-                    using (TimedLock.Lock(User.OfferedItems))
+                    Message.AppendUInt(Item.Id);
+                    Message.AppendStringWithBreak(Item.GetBaseItem().Type.ToLower());
+                    Message.AppendUInt(Item.Id);
+                    Message.AppendInt32(Item.GetBaseItem().SpriteId);
+                    Message.AppendBoolean(true);
+                    Message.AppendBoolean(true);
+                    Message.AppendStringWithBreak("");
+                    Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, with wired day (wat?)
+                    Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, wired month (wat?)
+                    Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, wired year (wat?)
+                    if (Item.GetBaseItem().Type.ToLower() == "s")
                     {
-                        foreach (UserItem Item in User.OfferedItems)
-                        {
-                            Message.AppendUInt(Item.Id);
-                            Message.AppendStringWithBreak(Item.GetBaseItem().Type.ToLower());
-                            Message.AppendUInt(Item.Id);
-                            Message.AppendInt32(Item.GetBaseItem().SpriteId);
-                            Message.AppendBoolean(true);
-                            Message.AppendBoolean(true);
-                            Message.AppendStringWithBreak("");
-                            Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, with wired day (wat?)
-                            Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, wired month (wat?)
-                            Message.AppendBoolean(false); // xmas 09 furni had a special furni tag here, wired year (wat?)
-
-                            if (Item.GetBaseItem().Type.ToLower() == "s")
-                            {
-                                Message.AppendInt32(-1);
-                            }
-                        }
+                        Message.AppendInt32(-1);
                     }
                 }
             }
-
             SendMessageToUsers(Message);
         }
 
@@ -285,13 +267,10 @@ namespace Uber.HabboHotel.Rooms
 
         public void CloseTradeClean()
         {
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
-                {
-                    User.GetRoomUser().RemoveStatus("trd");
-                    User.GetRoomUser().UpdateNeeded = true;
-                }
+                User.GetRoomUser().RemoveStatus("trd");
+                User.GetRoomUser().UpdateNeeded = true;
             }
 
             SendMessageToUsers(new ServerPacket(112));
@@ -300,18 +279,15 @@ namespace Uber.HabboHotel.Rooms
 
         public void CloseTrade(uint UserId)
         {
-           using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
+                if (User.GetRoomUser() == null)
                 {
-                    if (User.GetRoomUser() == null)
-                    {
-                        continue;
-                    }
-
-                    User.GetRoomUser().RemoveStatus("trd");
-                    User.GetRoomUser().UpdateNeeded = true;
+                    continue;
                 }
+
+                User.GetRoomUser().RemoveStatus("trd");
+                User.GetRoomUser().UpdateNeeded = true;
             }
 
             ServerPacket Message = new ServerPacket(110);
@@ -321,12 +297,9 @@ namespace Uber.HabboHotel.Rooms
 
         public void SendMessageToUsers(ServerPacket Message)
         {
-            using (TimedLock.Lock(Users))
+            foreach (TradeUser User in Users)
             {
-                foreach (TradeUser User in Users)
-                {
-                    User.GetClient().SendPacket(Message);
-                }
+                User.GetClient().SendPacket(Message);
             }
         }
 
@@ -373,7 +346,7 @@ namespace Uber.HabboHotel.Rooms
             {
                 return null;
             }
-            
+
             return Room.GetRoomUserByHabbo(UserId);
         }
 
