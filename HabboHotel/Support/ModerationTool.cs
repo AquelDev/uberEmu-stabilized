@@ -33,7 +33,7 @@ namespace Uber.HabboHotel.Support
             Message.AppendInt32(-1);
             Message.AppendInt32(UserMessagePresets.Count);
 
-            foreach (String Preset in UserMessagePresets)
+            foreach (string Preset in UserMessagePresets)
             {
                 Message.AppendStringWithBreak(Preset);
             }
@@ -164,7 +164,7 @@ namespace Uber.HabboHotel.Support
 
             Message.AppendInt32(RoomMessagePresets.Count);
 
-            foreach (String Preset in RoomMessagePresets)
+            foreach (string Preset in RoomMessagePresets)
             {
                 Message.AppendStringWithBreak(Preset);
             }
@@ -195,7 +195,7 @@ namespace Uber.HabboHotel.Support
 
             foreach (DataRow Row in Data.Rows)
             {
-                String Message = (String)Row["message"];
+                string Message = (string)Row["message"];
 
                 switch (Row["type"].ToString().ToLower())
                 {
@@ -234,7 +234,7 @@ namespace Uber.HabboHotel.Support
 
             foreach (DataRow Row in Data.Rows)
             {
-                SupportTicket Ticket = new SupportTicket((uint)Row["id"], (int)Row["score"], (int)Row["type"], (uint)Row["sender_id"], (uint)Row["reported_id"], (String)Row["message"], (uint)Row["room_id"], (String)Row["room_name"], (Double)Row["timestamp"]);
+                SupportTicket Ticket = new SupportTicket((uint)Row["id"], (int)Row["score"], (int)Row["type"], (uint)Row["sender_id"], (uint)Row["reported_id"], (string)Row["message"], (uint)Row["room_id"], (string)Row["room_name"], (Double)Row["timestamp"]);
 
                 if (Row["status"].ToString().ToLower() == "picked")
                 {
@@ -245,7 +245,7 @@ namespace Uber.HabboHotel.Support
             }
         }
 
-        public void SendNewTicket(GameClient Session, int Category, uint ReportedUser, String Message)
+        public void SendNewTicket(GameClient Session, int Category, uint ReportedUser, string Message)
         {
             if (Session.GetHabbo().CurrentRoomId <= 0)
             {
@@ -464,7 +464,7 @@ namespace Uber.HabboHotel.Support
             }
         }
 
-        public void RoomAlert(uint RoomId, Boolean Caution, String Message)
+        public void RoomAlert(uint RoomId, Boolean Caution, string Message)
         {
             Room Room = UberEnvironment.GetGame().GetRoomManager().GetRoom(RoomId);
 
@@ -571,7 +571,7 @@ namespace Uber.HabboHotel.Support
 
         #region User Moderation
 
-        public void KickUser(GameClient ModSession, uint UserId, String Message, Boolean Soft)
+        public void KickUser(GameClient ModSession, uint UserId, string Message, Boolean Soft)
         {
             GameClient Client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(UserId);
 
@@ -606,7 +606,7 @@ namespace Uber.HabboHotel.Support
             }
         }
 
-        public void AlertUser(GameClient ModSession, uint UserId, String Message, Boolean Caution)
+        public void AlertUser(GameClient ModSession, uint UserId, string Message, Boolean Caution)
         {
             GameClient Client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(UserId);
 
@@ -632,7 +632,7 @@ namespace Uber.HabboHotel.Support
             }
         }
 
-        public void BanUser(GameClient ModSession, uint UserId, int Length, String Message)
+        public void BanUser(GameClient ModSession, uint UserId, int Length, string Message)
         {
             GameClient Client = UberEnvironment.GetGame().GetClientManager().GetClientByHabbo(UserId);
 
@@ -845,8 +845,8 @@ namespace Uber.HabboHotel.Support
                     Message.AppendInt32((int)Row["hour"]);
                     Message.AppendInt32((int)Row["minute"]);
                     Message.AppendUInt((uint)Row["user_id"]);
-                    Message.AppendStringWithBreak((String)Row["user_name"]);
-                    Message.AppendStringWithBreak((String)Row["message"]);
+                    Message.AppendStringWithBreak((string)Row["user_name"]);
+                    Message.AppendStringWithBreak((string)Row["message"]);
                 }
             }
             else

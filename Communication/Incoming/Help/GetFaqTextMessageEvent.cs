@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Uber.HabboHotel.GameClients;
+using Uber.HabboHotel.Support;
 using Uber.Messages;
 
 namespace Uber.Communication.Incoming.Help
@@ -11,7 +12,16 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            uint TopicId = Packet.PopWiredUInt();
+
+            HelpTopic Topic = UberEnvironment.GetGame().GetHelpTool().GetTopic(TopicId);
+
+            if (Topic == null)
+            {
+                return;
+            }
+
+            Session.SendPacket(UberEnvironment.GetGame().GetHelpTool().SerializeTopic(Topic));
         }
     }
 }

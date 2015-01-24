@@ -16,19 +16,19 @@ namespace Uber.Net
     {
         public Socket msSocket;
 
-        public String musIp;
+        public string musIp;
         public int musPort;
 
-        public HashSet<String> allowedIps;
+        public HashSet<string> allowedIps;
 
-        public MusSocket(String _musIp, int _musPort, String[] _allowedIps, int backlog)
+        public MusSocket(string _musIp, int _musPort, string[] _allowedIps, int backlog)
         {
             musIp = _musIp;
             musPort = _musPort;
 
-            allowedIps = new HashSet<String>();
+            allowedIps = new HashSet<string>();
 
-            foreach (String ip in _allowedIps)
+            foreach (string ip in _allowedIps)
             {
                 allowedIps.Add(ip);
             }
@@ -55,7 +55,7 @@ namespace Uber.Net
         public void OnEvent_NewConnection(IAsyncResult iAr)
         {
             Socket socket = ((Socket)iAr.AsyncState).EndAccept(iAr);
-            String ip = socket.RemoteEndPoint.ToString().Split(':')[0];
+            string ip = socket.RemoteEndPoint.ToString().Split(':')[0];
 
             if (allowedIps.Contains(ip))
             {
@@ -104,7 +104,7 @@ namespace Uber.Net
             try
             {
                 int bytes = socket.EndReceive(iAr);
-                String data = Encoding.Default.GetString(buffer, 0, bytes);
+                string data = Encoding.Default.GetString(buffer, 0, bytes);
 
                 if (data.Length > 0)
                 {
@@ -116,10 +116,10 @@ namespace Uber.Net
             tryClose();
         }
 
-        public void processCommand(String data)
+        public void processCommand(string data)
         {
-            String header = data.Split(Convert.ToChar(1))[0];
-            String param = data.Split(Convert.ToChar(1))[1];
+            string header = data.Split(Convert.ToChar(1))[0];
+            string param = data.Split(Convert.ToChar(1))[1];
 
             UberEnvironment.GetLogging().WriteLine("[MUSConnection.ProcessCommand]: " + data);
 

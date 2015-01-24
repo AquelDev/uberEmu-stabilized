@@ -372,7 +372,7 @@ namespace Uber.HabboHotel.Catalogs
             return true;
         }
 
-        public void DeliverItems(GameClient Session, Item Item, int Amount, String ExtraData)
+        public void DeliverItems(GameClient Session, Item Item, int Amount, string ExtraData)
         {
             switch (Item.Type.ToLower())
             {

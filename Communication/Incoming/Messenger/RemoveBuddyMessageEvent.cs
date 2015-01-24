@@ -11,7 +11,17 @@ namespace Uber.Communication.Incoming.Messenger
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (Session.GetHabbo().GetMessenger() == null)
+            {
+                return;
+            }
+
+            int Requests = Packet.PopWiredInt32();
+
+            for (int i = 0; i < Requests; i++)
+            {
+                Session.GetHabbo().GetMessenger().DestroyFriendship(Packet.PopWiredUInt());
+            }
         }
     }
 }

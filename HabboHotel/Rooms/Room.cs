@@ -1294,7 +1294,7 @@ namespace Uber.HabboHotel.Rooms
         }
         #endregion
 
-        public int ItemCountByType(String InteractionType)
+        public int ItemCountByType(string InteractionType)
         {
             int i = 0;
 

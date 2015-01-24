@@ -11,7 +11,14 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            string SearchQuery = Packet.PopFixedString();
+
+            if (SearchQuery.Length < 3)
+            {
+                return;
+            }
+
+            Session.SendPacket(UberEnvironment.GetGame().GetHelpTool().SerializeSearchResults(SearchQuery));
         }
     }
 }

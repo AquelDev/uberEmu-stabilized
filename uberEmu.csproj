@@ -343,9 +343,6 @@
     <Compile Include="Messages\Requests\Rooms.cs" />
     <Compile Include="Messages\Requests\Navigator.cs" />
     <Compile Include="Messages\Requests\Help.cs" />
-    <Compile Include="Messages\Requests\Messenger.cs" />
-    <Compile Include="Messages\Requests\Handshake.cs" />
-    <Compile Include="Messages\Requests\Global.cs" />
     <Compile Include="Messages\ServerMessage.cs" />
     <Compile Include="Net\MusSocket.cs" />
     <Compile Include="Net\TcpConnection.cs" />

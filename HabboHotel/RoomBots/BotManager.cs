@@ -37,7 +37,7 @@ namespace Uber.HabboHotel.RoomBots
             foreach (DataRow Row in Data.Rows)
             {
                 Bots.Add(new RoomBot((uint)Row["id"], (uint)Row["room_id"], (string)Row["ai_type"], (string)Row["walk_mode"],
-                    (String)Row["name"], (string)Row["motto"], (String)Row["look"], (int)Row["x"], (int)Row["y"], (int)Row["z"],
+                    (string)Row["name"], (string)Row["motto"], (string)Row["look"], (int)Row["x"], (int)Row["y"], (int)Row["z"],
                     (int)Row["rotation"], (int)Row["min_x"], (int)Row["min_y"], (int)Row["max_x"], (int)Row["max_y"]));
             }
         }

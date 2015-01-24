@@ -11,7 +11,18 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (!Session.GetHabbo().HasFuse("fuse_chatlogs"))
+            {
+                return;
+            }
+
+            int Junk = Packet.PopWiredInt32();
+            uint RoomId = Packet.PopWiredUInt();
+
+            if (UberEnvironment.GetGame().GetRoomManager().GetRoom(RoomId) != null)
+            {
+                Session.SendPacket(UberEnvironment.GetGame().GetModerationTool().SerializeRoomChatlog(RoomId));
+            }
         }
     }
 }

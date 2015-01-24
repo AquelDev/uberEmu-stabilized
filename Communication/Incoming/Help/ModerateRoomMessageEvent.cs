@@ -11,7 +11,17 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (!Session.GetHabbo().HasFuse("fuse_mod"))
+            {
+                return;
+            }
+
+            uint RoomId = Packet.PopWiredUInt();
+            Boolean ActOne = Packet.PopWiredBoolean(); // set room lock to doorbell
+            Boolean ActTwo = Packet.PopWiredBoolean(); // set room to inappropiate
+            Boolean ActThree = Packet.PopWiredBoolean(); // kick all users
+
+            UberEnvironment.GetGame().GetModerationTool().PerformRoomAction(Session, RoomId, ActThree, ActOne, ActTwo);
         }
     }
 }

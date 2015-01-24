@@ -11,7 +11,15 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (!UberEnvironment.GetGame().GetModerationTool().UsersHasPendingTicket(Session.GetHabbo().Id))
+            {
+                return;
+            }
+
+            UberEnvironment.GetGame().GetModerationTool().DeletePendingTicketForUser(Session.GetHabbo().Id);
+
+            ServerPacket packet = new ServerPacket(320);
+            Session.SendPacket(packet);
         }
     }
 }

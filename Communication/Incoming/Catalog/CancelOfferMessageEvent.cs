@@ -34,7 +34,7 @@ namespace Uber.Communication.Incoming.Catalog
                 return;
             }
 
-            UberEnvironment.GetGame().GetCatalog().DeliverItems(Session, Item, 1, (String)Row["extra_data"]);
+            UberEnvironment.GetGame().GetCatalog().DeliverItems(Session, Item, 1, (string)Row["extra_data"]);
 
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {

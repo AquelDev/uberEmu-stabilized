@@ -11,7 +11,15 @@ namespace Uber.Communication.Incoming.Messenger
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            uint userId = Packet.PopWiredUInt();
+            string message = UberEnvironment.FilterInjectionChars(Packet.PopFixedString());
+
+            if (Session.GetHabbo().GetMessenger() == null)
+            {
+                return;
+            }
+
+            Session.GetHabbo().GetMessenger().SendInstantMessage(userId, message);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Uber
         private static MusSocket MusSocket;
         private static Game Game;
 
-        public static String PrettyVersion
+        public static string PrettyVersion
         {
             get
             {

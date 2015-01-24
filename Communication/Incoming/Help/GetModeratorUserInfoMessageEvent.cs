@@ -11,7 +11,21 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (!Session.GetHabbo().HasFuse("fuse_mod"))
+            {
+                return;
+            }
+
+            uint UserId = Packet.PopWiredUInt();
+
+            if (UberEnvironment.GetGame().GetClientManager().GetNameById(UserId) != "Unknown User")
+            {
+                Session.SendPacket(UberEnvironment.GetGame().GetModerationTool().SerializeUserInfo(UserId));
+            }
+            else
+            {
+                Session.SendNotif("Could not load user info; invalid user.");
+            }
         }
     }
 }

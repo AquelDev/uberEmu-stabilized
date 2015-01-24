@@ -69,7 +69,7 @@ namespace Uber.HabboHotel.Catalogs
             return UberEnvironment.GetUnixTimestamp() - 172800;
         }
 
-        public ServerPacket SerializeOffers(int MinCost, int MaxCost, String SearchQuery, int FilterMode)
+        public ServerPacket SerializeOffers(int MinCost, int MaxCost, string SearchQuery, int FilterMode)
         {
             // IgI`UJUIIY~JX]gXoAJISA
             // IgPYcaxwIIZVF{2}
@@ -149,7 +149,7 @@ namespace Uber.HabboHotel.Catalogs
             using (DatabaseClient dbClient = UberEnvironment.GetDatabase().GetClient())
             {
                 DataTable Data = dbClient.ReadDataTable("SELECT * FROM catalog_marketplace_offers WHERE user_id = '" + HabboId + "'");
-                String RawProfit = dbClient.ReadDataRow("SELECT SUM(asking_price) FROM catalog_marketplace_offers WHERE state = '2' AND user_id = '" + HabboId + "'")[0].ToString();
+                string RawProfit = dbClient.ReadDataRow("SELECT SUM(asking_price) FROM catalog_marketplace_offers WHERE state = '2' AND user_id = '" + HabboId + "'")[0].ToString();
 
                 if (RawProfit.Length > 0)
                 {

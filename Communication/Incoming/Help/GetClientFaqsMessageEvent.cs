@@ -11,7 +11,7 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            Session.SendPacket(UberEnvironment.GetGame().GetHelpTool().SerializeFrontpage());
         }
     }
 }

@@ -11,7 +11,16 @@ namespace Uber.Communication.Incoming.Help
     {
         public void parse(GameClient Session, ClientPacket Packet)
         {
-            throw new NotImplementedException();
+            if (!Session.GetHabbo().HasFuse("fuse_ban"))
+            {
+                return;
+            }
+
+            uint UserId = Packet.PopWiredUInt();
+            string Message = Packet.PopFixedString();
+            int Length = Packet.PopWiredInt32() * 3600;
+
+            UberEnvironment.GetGame().GetModerationTool().BanUser(Session, UserId, Length, Message);
         }
     }
 }

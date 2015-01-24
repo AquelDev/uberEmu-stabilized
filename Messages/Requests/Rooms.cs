@@ -1945,9 +1945,9 @@ namespace Uber.Messages
                 return;
             }
 
-            String Data = Request.PopFixedString();
-            String Color = Data.Split(' ')[0];
-            String Text = UberEnvironment.FilterInjectionChars(Data.Substring(Color.Length + 1), true);
+            string Data = Request.PopFixedString();
+            string Color = Data.Split(' ')[0];
+            string Text = UberEnvironment.FilterInjectionChars(Data.Substring(Color.Length + 1), true);
 
             if (!Room.CheckRights(Session))
             {
@@ -2046,7 +2046,7 @@ namespace Uber.Messages
                 dbClient.ExecuteQuery("DELETE FROM user_presents WHERE item_id = '" + Present.Id + "' LIMIT 1");
             }
 
-            UberEnvironment.GetGame().GetCatalog().DeliverItems(Session, BaseItem, (int)Data["amount"], (String)Data["extra_data"]);
+            UberEnvironment.GetGame().GetCatalog().DeliverItems(Session, BaseItem, (int)Data["amount"], (string)Data["extra_data"]);
         }
 
         private void RoomDimmerGetPresetsMessageEvent()

@@ -101,7 +101,7 @@ namespace Uber.HabboHotel.Items
 
         public MoodlightPreset GeneratePreset(string Data)
         {
-            String[] Bits = Data.Split(',');
+            string[] Bits = Data.Split(',');
 
             if (!IsValidColor(Bits[0]))
             {

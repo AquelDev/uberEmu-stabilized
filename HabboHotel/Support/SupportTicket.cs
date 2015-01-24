@@ -31,10 +31,10 @@ namespace Uber.HabboHotel.Support
         public uint ReportedId;
         public uint ModeratorId;
 
-        public String Message;
+        public string Message;
 
         public uint RoomId;
-        public String RoomName;
+        public string RoomName;
 
         public Double Timestamp;
 
@@ -64,7 +64,7 @@ namespace Uber.HabboHotel.Support
             }
         }
 
-        public SupportTicket(uint Id, int Score, int Type, uint SenderId, uint ReportedId, String Message, uint RoomId, String RoomName, Double Timestamp)
+        public SupportTicket(uint Id, int Score, int Type, uint SenderId, uint ReportedId, string Message, uint RoomId, string RoomName, Double Timestamp)
         {
             this.Id = Id;
             this.Score = Score;
@@ -99,7 +99,7 @@ namespace Uber.HabboHotel.Support
 
             if (UpdateInDb)
             {
-                String dbType = "";
+                string dbType = "";
 
                 switch (NewStatus)
                 {
